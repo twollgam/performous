@@ -1,37 +1,33 @@
 version: v1.0
-name: Performous Build on Ubuntu 18.04
+name: First pipeline
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
 blocks:
-  - name: Ubuntu 18.04 Build
+  - name: Lint
     task:
       prologue:
         commands:
-          - echo "Installing Performous Dependencies..."
-          - sudo apt -y update
-          - sudo apt -y install cmake gettext help2man clang gcc-7 g++-7 libepoxy-dev libsdl2-dev libcairo2-dev libpango1.0-dev librsvg2-dev libboost-all-dev libavcodec-dev libavformat-dev libswscale-dev libswresample-dev libpng-dev libjpeg-dev libxml++2.6-dev portaudio19-dev libopencv-dev libportmidi-dev libqrencode-dev libicu-dev libcpprest-dev libglm-dev libopenblas-dev libfftw3-dev
+          - checkout
       jobs:
-        - name: GCC-7 Build
-          env_vars:
-            - name: CC
-              value: gcc-7
-            - name: CXX
-              value: g++-7
+        - name: make lint
           commands:
-            - checkout
-            - git submodule init && git submodule update
-            - mkdir build.gcc && cd build.gcc && cmake -DENABLE_WEBSERVER=ON -DCMAKE_VERBOSE_MAKEFILE=1 -DENABLE_WEBCAM=ON ..
-            - make VERBOSE=1
-        - name: Clang-6.0 Build
-          env_vars:
-            - name: CC
-              value: clang
-            - name: CXX
-              value: clang++
+            - echo "lint your code"
+      secrets:
+        - name: boost_portfile
+  - name: Unit tests
+    task:
+      prologue:
+        commands:
+          - checkout
+      jobs:
+        - name: Unit tests 1/3
           commands:
-            - checkout
-            - git submodule init && git submodule update
-            - mkdir build.clang && cd build.clang && cmake -DENABLE_WEBSERVER=ON -DCMAKE_VERBOSE_MAKEFILE=1 -DENABLE_WEBCAM=ON ..
-            - make VERBOSE=1
+            - echo "run 1/3"
+        - name: Unit tests 2/3
+          commands:
+            - echo "run 2/3"
+        - name: Unit tests 3/3
+          commands:
+            - echo "run 3/3"
