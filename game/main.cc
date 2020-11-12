@@ -25,6 +25,7 @@
 #include "screen_paths.hh"
 #include "screen_players.hh"
 #include "screen_playlist.hh"
+#include "screen_playlistmanager.hh"
 
 #include <boost/program_options.hpp>
 #include <cstdlib>
@@ -133,19 +134,19 @@ void mainLoop(std::string const& songlist) {
 	std::unique_ptr<Window> window;
 	TextureLoader m_loader;
 	Backgrounds backgrounds;
-	Database database(getConfigDir() / "database.xml");
-	Songs songs(database, songlist);
+	Songs songs(songlist);
 	loadFonts();
 	try {
 		window = std::make_unique<Window>();
-		} catch (RUNTIME_ERROR& e) {
-			std::cerr << "ERROR: " << e.what() << std::endl;
-		}
-	Game gm(*window, audio);
+	} catch (RUNTIME_ERROR& e) {
+		std::cerr << "ERROR: " << e.what() << std::endl;
+	}
+	Game game(*window, audio);
+	Database database(getConfigDir() / "database.xml", songs);
 	WebServer server(songs);
 	try {
 		// Load audio samples
-		gm.loading(_("Loading audio samples..."), 0.5);
+		game.loading(_("Loading audio samples..."), 0.5);
 		audio.loadSample("drum bass", findFile("sounds/drum_bass.ogg"));
 		audio.loadSample("drum snare", findFile("sounds/drum_snare.ogg"));
 		audio.loadSample("drum hi-hat", findFile("sounds/drum_hi-hat.ogg"));
@@ -160,59 +161,60 @@ void mainLoop(std::string const& songlist) {
 		audio.loadSample("guitar fail6", findFile("sounds/guitar_fail6.ogg"));
 		audio.loadSample("notice.ogg",findFile("notice.ogg"));
 		// Load screens
-		gm.loading(_("Creating screens..."), 0.7);
-		gm.addScreen(std::make_unique<ScreenIntro>("Intro", audio));
-		gm.addScreen(std::make_unique<ScreenSongs>("Songs", audio, songs, database));
-		gm.addScreen(std::make_unique<ScreenSing>("Sing", audio, database, backgrounds));
-		gm.addScreen(std::make_unique<ScreenPractice>("Practice", audio));
-		gm.addScreen(std::make_unique<ScreenAudioDevices>("AudioDevices", audio));
-		gm.addScreen(std::make_unique<ScreenPaths>("Paths", audio, songs));
-		gm.addScreen(std::make_unique<ScreenPlayers>("Players", audio, database));
-		gm.addScreen(std::make_unique<ScreenPlaylist>("Playlist", audio, songs, backgrounds));
-		gm.activateScreen("Intro");
-		gm.loading(_("Entering main menu"), 0.8);
-		gm.updateScreen();  // exit/enter, any exception is fatal error
-		gm.loading(_("Loading complete"), 1.0);
+		game.loading(_("Creating screens..."), 0.7);
+		game.addScreen(std::make_unique<ScreenIntro>("Intro", audio));
+		game.addScreen(std::make_unique<ScreenSongs>("Songs", audio, songs, database));
+		game.addScreen(std::make_unique<ScreenSing>("Sing", audio, database, backgrounds));
+		game.addScreen(std::make_unique<ScreenPractice>("Practice", audio));
+		game.addScreen(std::make_unique<ScreenAudioDevices>("AudioDevices", audio));
+		game.addScreen(std::make_unique<ScreenPaths>("Paths", audio, songs));
+		game.addScreen(std::make_unique<ScreenPlayers>("Players", audio, database));
+		game.addScreen(std::make_unique<ScreenPlaylist>("Playlist", audio, songs, backgrounds));
+		game.addScreen(std::make_unique<ScreenPlaylistManager>("PlaylistManager", audio, songs, backgrounds, database.getPlayLists()));
+		game.activateScreen("Intro");
+		game.loading(_("Entering main menu"), 0.8);
+		game.updateScreen();  // exit/enter, any exception is fatal error
+		game.loading(_("Loading complete"), 1.0);
 		// Main loop
 		auto time = Clock::now();
 		unsigned frames = 0;
 		std::clog << "core/info: Assets loaded, entering main loop." << std::endl;
-		while (!gm.isFinished()) {
+		while (!game.isFinished()) {
 			Profiler prof("mainloop");
 			bool benchmarking = config["graphic/fps"].b();
 			if (songs.doneLoading == true && songs.displayedAlert == false) {
-				gm.dialog(_("Done Loading!\n Loaded ") + std::to_string(songs.loadedSongs()) + " Songs.");
+				game.dialog(_("Done Loading!\n Loaded ") + std::to_string(songs.loadedSongs()) + " Songs.");
 				songs.displayedAlert = true;
 			}
 			if (g_take_screenshot) {
 				try {
 					window->screenshot();
-					gm.flashMessage(_("Screenshot taken!"));
+					game.flashMessage(_("Screenshot taken!"));
 				} catch (EXCEPTION& e) {
 					std::cerr << "ERROR: " << e.what() << std::endl;
-					gm.flashMessage(_("Screenshot failed!"));
+					game.flashMessage(_("Screenshot failed!"));
 				}
 				g_take_screenshot = false;
 			}
-			gm.updateScreen();  // exit/enter, any exception is fatal error
+			game.updateScreen();  // exit/enter, any exception is fatal error
 			if (benchmarking) prof("misc");
 			try {
 				window->blank();
 				// Draw
-				window->render([&gm]{ gm.drawScreen(); });
+				window->render([&game]{ game.drawScreen(); });
 				if (benchmarking) { glFinish(); prof("draw"); }
 				// Display (and wait until next frame)
 				window->swap();
 				if (benchmarking) { glFinish(); prof("swap"); }
 				updateTextures();
-				gm.prepareScreen();
+				game.prepareScreen();
 				if (benchmarking) { glFinish(); prof("textures"); }
 				if (benchmarking) {
 					++frames;
 					if (Clock::now() - time > 1s) {
 						std::ostringstream oss;
 						oss << frames << " FPS";
-						gm.flashMessage(oss.str());
+						game.flashMessage(oss.str());
 						time += 1s;
 						frames = 0;
 					}
@@ -224,18 +226,18 @@ void mainLoop(std::string const& songlist) {
 				if (benchmarking) prof("fpsctrl");
 				// Process events for the next frame
 				auto eventTime = Clock::now();
-				gm.controllers.process(eventTime);
-				checkEvents(gm, eventTime);
+				game.controllers.process(eventTime);
+				checkEvents(game, eventTime);
 				if (benchmarking) prof("events");
 		} catch (RUNTIME_ERROR& e) {
 			std::cerr << "ERROR: " << e.what() << std::endl;
-			gm.flashMessage(std::string("ERROR: ") + e.what());
+			game.flashMessage(std::string("ERROR: ") + e.what());
 			}
 		}
 		writeConfig();
 	} catch (EXCEPTION& e) {
 		std::clog << "core/error: Exiting due to fatal error: " << e.what() << std::endl;
-		gm.fatalError(e.what());  // Notify the user
+		game.fatalError(e.what());  // Notify the user
 		throw;
 		} catch (QuitNow&) {
 		std::cerr << "Terminated." << std::endl;
@@ -306,7 +308,6 @@ void fatalError(std::string msg, bool hasLog = false, std::string title = "FATAL
 		std::clog << "core/error: " << errMsg.str() << std::endl;
 	}
 }
-
 int main(int argc, char** argv) try {
 	signalSetup();
 	std::srand(std::time(nullptr));

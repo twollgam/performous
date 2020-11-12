@@ -27,15 +27,31 @@ class ScreenPlaylist : public Screen
 {
 public:
 	typedef std::vector< std::shared_ptr<Song> > SongList;
+	
 	ScreenPlaylist(std::string const& name, Audio& audio, Songs& songs, Backgrounds& bgs);
-	void manageEvent(input::NavEvent const& event);
-	void manageEvent(SDL_Event);
-	void prepare();
-	void draw();
-	void enter();
-	void exit();
-	void reloadGL();
+	
+	void manageEvent(input::NavEvent const& event) override;
+	void manageEvent(SDL_Event) override;
+	void prepare() override;
+	void draw() override;
+	void enter() override;
+	void exit() override;
+	void reloadGL() override;
 	void triggerSongListUpdate();
+
+	void setPreviousScreen(std::string const&);
+
+private:
+	void createSongListMenu();
+	void createEscMenu();
+	void createSongMenu(int songNumber);
+	void drawMenu();
+	void createMenuFromPlaylist();
+	Texture* loadTextureFromMap(fs::path path);
+	SvgTxtTheme& getTextObject(std::string const& txt);
+	void draw_menu_options();
+	Texture& getCover(Song const& song);
+
 private:
 	Menu overlay_menu;
 	Menu songlist_menu;
@@ -44,29 +60,21 @@ private:
 	AnimValue m_submenuAnim;
 	Audio& m_audio;
 	Songs& m_songs;
-	void createSongListMenu();
-	void createEscMenu();
-	void createSongMenu(int songNumber);
-	void drawMenu();
-	void createMenuFromPlaylist();
-	Texture* loadTextureFromMap(fs::path path);
 	Backgrounds& m_backgrounds;
 	std::map<fs::path, std::unique_ptr<Texture>> m_covers;
 	std::unique_ptr<ThemeInstrumentMenu> m_menuTheme;
 	std::unique_ptr<ThemePlaylistScreen> theme;
 	std::unique_ptr<Texture> m_background;
-	SvgTxtTheme& getTextObject(std::string const& txt);
 	AnimValue m_nextTimer;
-	void draw_menu_options();
 	bool keyPressed;
 	bool needsUpdate = false;
 	mutable std::mutex m_mutex;
-	Texture& getCover(Song const& song);
 	std::unique_ptr<Texture> m_singCover;
 	std::unique_ptr<Texture> m_instrumentCover;
 	std::unique_ptr<Texture> m_bandCover;
 	std::unique_ptr<Texture> m_danceCover;
 	std::unique_ptr<Webcam> m_cam;
+	std::string m_previousScreen;
 };
 
 

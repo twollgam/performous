@@ -5,6 +5,7 @@
 #include <cpprest/filestream.h>
 
 #include "screen_playlist.hh"
+#include "screen_playlistmanager.hh"
 
 class RequestHandler
 {

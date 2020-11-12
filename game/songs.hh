@@ -14,20 +14,22 @@
 class Song;
 class Database;
 
+using SongVector = std::vector<std::shared_ptr<Song>>;
+
 /// songs class for songs screen
 class Songs {
   public:
   	Songs(const Songs&) = delete;
   	const Songs& operator=(const Songs&) = delete;
 	/// constructor
-	Songs(Database& database, std::string const& songlist = std::string());
+	Songs(std::string const& songlist = std::string());
 	~Songs();
 	/// updates filtered songlist
 	void update();
 	/// reloads songlist
 	void reload();
 	/// array access
-	std::shared_ptr<Song> operator[](std::size_t pos) { return m_filtered[pos]; }
+	std::shared_ptr<Song> operator[](std::size_t pos) const { return m_filtered[pos]; }
 	/// number of songs
 	int size() const { return m_filtered.size(); }
 	/// true if empty
@@ -75,19 +77,18 @@ class Songs {
 	std::atomic<bool> doneLoading{ false };
 	std::atomic<bool> displayedAlert{ false };
 	size_t loadedSongs() const { return m_songs.size(); }
+	const SongVector& getLoadedSongs() const { return m_songs;}
 
   private:
   	void LoadCache();
 	void CacheSonglist();
 
 	class RestoreSel;
-	typedef std::vector<std::shared_ptr<Song> > SongVector;
 	std::string m_songlist;
 	SongVector m_songs, m_filtered;
 	AnimValue m_updateTimer;
 	AnimAcceleration math_cover;
 	std::string m_filter;
-	Database & m_database;
 	int m_type = 0;
 	int m_order;  // Set by constructor
 	void dumpSongs_internal() const;

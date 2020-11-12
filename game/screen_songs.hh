@@ -24,21 +24,24 @@ class ThemeInstrumentMenu;
 /// song chooser screen
 class ScreenSongs : public Screen {
 public:
-	/// constructor
 	ScreenSongs(std::string const& name, Audio& audio, Songs& songs, Database& database);
-	void enter();
-	void exit();
-	void reloadGL();
+
+	void enter() override;
+	void exit() override;
+	void reloadGL() override;
+	void manageEvent(SDL_Event event) override;
+	void manageEvent(input::NavEvent const& event) override;
+	void prepare() override;
+	void draw() override;
+
 	void menuBrowse(int dir); ///< Left/Right on menu options
-	void manageEvent(SDL_Event event);
-	void manageEvent(input::NavEvent const& event);
 	Songs& getSongs() const { return m_songs; }
-	void prepare();
-	void draw();
 	void drawCovers(); ///< draw the cover browser
 	Texture& getCover(Song const& song); ///< get appropriate cover image for the song (incl. no cover)
 	void drawJukebox(); ///< draw the songbrowser in jukebox mode (fullscreen, full previews, ...)
+
 	static std::unique_ptr<fvec_t, void(*)(fvec_t*)> previewBeatsBuffer;
+
 private:
 	void manageSharedKey(input::NavEvent const& event); ///< same behaviour for jukebox and normal mode
 	void drawInstruments(Dimensions dim) const;

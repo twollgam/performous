@@ -6,14 +6,16 @@
 #include "opengl_text.hh"
 #include "video_driver.hh"
 #include "dialog.hh"
-#include "playlist.hh"
+#include "playlistloader.hh"
 #include "fbo.hh"
+//#include "songs.hh"
 
 #include <SDL2/SDL_events.h>
 #include <string>
 #include <memory>
 
 class Audio;
+class Songs;
 
 /// Abstract Class for screens
 class Screen {
@@ -50,6 +52,7 @@ class Game: public Singleton <Game> {
 	/// constructor
 	Game(Window& window, Audio& audio);
 	~Game();
+
 	/// Adds a screen to the manager
 	void addScreen(std::unique_ptr<Screen> s) { 
 		std::string screenName = s.get()->getName(); 
@@ -102,12 +105,17 @@ class Game: public Singleton <Game> {
 	/// Draw the logo
 	void drawLogo();
 	///global playlist access
-	PlayList& getCurrentPlayList() { return currentPlaylist; }
+	const PlayList& getCurrentPlayList() const;
+	PlayList& getCurrentPlayList();
+	const PlayListPtr& getPlayList() const;
+	PlayListPtr& getPlayList();
+	void setPlayList(const PlayListPtr&);
+	
 #ifdef USE_WEBSERVER
 	void notificationFromWebserver(std::string message) { m_webserverMessage = message; }
 	std::string subscribeWebserverMessages() { return m_webserverMessage; }
 #endif
-
+ 
 private:
 	Audio& m_audio;
 	Window& m_window;
@@ -119,9 +127,9 @@ private:
 	bool m_finished;
 	typedef std::map<std::string, std::unique_ptr<Screen>> screenmap_t;
 	screenmap_t screens;
-	Screen* newScreen;
-	Screen* currentScreen;
-	PlayList currentPlaylist;
+	Screen* newScreen = nullptr;
+	Screen* currentScreen = nullptr;
+	PlayListPtr m_currentPlaylist{std::make_shared<PlayList>()};
 	// Flash messages members
 	float m_timeToFadeIn;
 	float m_timeToFadeOut;

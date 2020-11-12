@@ -6,6 +6,8 @@
 #include "hiscore.hh"
 #include "players.hh"
 #include "songitems.hh"
+#include "songs.hh"
+#include "playlist.hh"
 #include <string>
 #include <ostream>
 
@@ -37,7 +39,7 @@ public:
 	  If it does not succeed the error will be ignored.
 	  Only some information will be printed on stderr.
 	  */
-	Database(fs::path const& filename);
+	Database(fs::path const& filename, Songs const&);
 	/**Will try to save the database.
 	  This will even be done if the loading failed.
 	  It tries to create the directory above the file.
@@ -57,6 +59,9 @@ public:
 	  Will write out everything to the file given in the constructor, @see file()
 	*/
 	void save();
+
+	const PlayLists& getPlayLists() const;
+	PlayLists& getPlayLists();
 
 	friend class ScreenHiscore;
 	friend class ScreenPlayers;
@@ -101,7 +106,9 @@ public: // methods for database queries
 private:
 	fs::path m_filename;
 
+	Songs const & m_songs;
 	Players m_players;
 	Hiscore m_hiscores;
-	SongItems m_songs;
+	SongItems m_songItems;
+	PlayLists m_playlists;
 };

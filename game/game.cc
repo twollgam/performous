@@ -12,8 +12,7 @@
 template<> Game* Singleton<Game>::ms_Singleton = nullptr;
 
 Game::Game(Window& _window, Audio& _audio):
-  m_audio(_audio), m_window(_window), m_finished(false), newScreen(), currentScreen(), currentPlaylist(),
-  m_timeToFadeIn(), m_timeToFadeOut(), m_timeToShow(), m_message(),
+  m_audio(_audio), m_window(_window), m_finished(false),
   m_messagePopup(0.0, 1.0), m_textMessage(findFile("message_text.svg"), config["graphic/text_lod"].f()),
   m_loadingProgress(0.0f), m_logo(findFile("logo.svg")), m_logoAnim(0.0, 0.5)
 {
@@ -116,6 +115,26 @@ void Game::drawLogo() {
 	m_logo.draw();
 }
 
+const PlayList& Game::getCurrentPlayList() const { 
+	return *m_currentPlaylist; 
+}
+
+PlayList& Game::getCurrentPlayList() { 
+	return *m_currentPlaylist; 
+}
+
+const PlayListPtr& Game::getPlayList() const { 
+	return m_currentPlaylist; 
+}
+
+PlayListPtr& Game::getPlayList() { 
+	return m_currentPlaylist; 
+}
+
+void Game::setPlayList(const PlayListPtr& list) {
+	m_currentPlaylist = list;
+}
+
 void Game::drawNotifications() {
 	double time = m_messagePopup.get();
 	if (time != 0.0) {
@@ -153,6 +172,6 @@ bool Game::isFinished() {
 }
 
 void Game::restartAudio() { 
-		m_audio.restart();
-		m_audio.playMusic(findFile("menu.ogg"), true); // Start music again
-	}
+	m_audio.restart();
+	m_audio.playMusic(findFile("menu.ogg"), true); // Start music again
+}
