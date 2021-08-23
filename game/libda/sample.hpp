@@ -82,10 +82,21 @@ namespace da {
 		using reference = ValueType&;
 
 		step_iterator(ValueType* pos, std::ptrdiff_t step): m_pos(pos), m_step(step) {}
+		step_iterator(step_iterator const&) = default;
+		step_iterator(step_iterator&&) = default;
+
+		step_iterator& operator=(step_iterator const&) = default;
+		step_iterator& operator=(step_iterator&&) = default;
+
 		ValueType& operator*() { return *m_pos; }
 		step_iterator operator+(std::ptrdiff_t rhs) { return step_iterator(m_pos + m_step * rhs, m_step); }
+		step_iterator& operator+=(std::ptrdiff_t distance) { m_pos += m_step * distance; return *this; }
 		step_iterator& operator++() { m_pos += m_step; return *this; }
 		step_iterator operator++(int) { step_iterator ret = *this; ++*this; return ret; }
+		step_iterator operator-(std::ptrdiff_t rhs) { return step_iterator(m_pos - m_step * rhs, m_step); }
+		step_iterator& operator-=(std::ptrdiff_t distance) { m_pos -= m_step * distance; return *this; }
+		step_iterator& operator--() { m_pos -= m_step; return *this; }
+		step_iterator operator--(int) { step_iterator ret = *this; --*this; return ret; }
 		bool operator!=(step_iterator const& rhs) const { return m_pos != rhs.m_pos; }
 		std::ptrdiff_t operator-(step_iterator const& rhs) const { return (m_pos - rhs.m_pos) / m_step; }
 		// TODO: more operators

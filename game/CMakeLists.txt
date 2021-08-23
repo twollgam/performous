@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.15)
 
 file(GLOB SOURCE_FILES
 	"*.cc"
+	"audio/*.cc"
 	"graphic/*.cc"
 	"songorder/*.cc"
 	"utils/*.cc"
 )
 file(GLOB HEADER_FILES
 	"*.hh"
+	"audio/*.hh"
 	"graphic/*.hh"
 	"songorder/*.hh"
 	"utils/*.hh"
@@ -270,6 +272,7 @@ list(APPEND LIBS ${BLAS_LIBRARIES})
 
 find_package(Threads)
 target_link_libraries(performous PRIVATE fs ced aubio ${LIBS} PkgConfig::deps Threads::Threads)
+#target_link_libraries(performous PRIVATE fs ced aubio ${LIBS} Threads::Threads)
 
 if (NOT APPLE)
 	install(TARGETS performous DESTINATION ${BIN_INSTALL})

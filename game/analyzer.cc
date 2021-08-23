@@ -1,8 +1,8 @@
 #include "analyzer.hh"
 
-#include "util.hh"
 #include "libda/fft.hpp"
-#include <cmath>
+#include "util.hh"
+
 #include <iostream>
 #include <iomanip>
 #include <stdexcept>
@@ -11,8 +11,8 @@
 static const double FFT_MINFREQ = 45.0;
 static const double FFT_MAXFREQ = 5000.0;
 
-Analyzer::Analyzer(double rate, std::string id, unsigned step):
-  m_step(step),
+Analyzer::Analyzer(double rate, std::string id, std::size_t step)
+	: m_step(step),
   m_resampleFactor(1.0),
   m_resamplePos(),
   m_rate(rate),
@@ -104,7 +104,7 @@ bool Analyzer::calcFFT() {
 void Analyzer::calcTones() {
 	// Precalculated constants
 	const double freqPerBin = m_rate / FFT_N;
-	const double stepRate = m_rate / m_step;  // Steps per second
+	const double stepRate = m_rate / double(m_step);  // Steps per second
 	const double phaseStep = double(m_step) / FFT_N;
 	const double normCoeff = 1.0 / FFT_N;
 	const double minMagnitude = pow(10, -80.0 / 20.0) / normCoeff; // -80 dB
@@ -233,3 +233,9 @@ Tone const* Analyzer::findTone(double minfreq, double maxfreq) const {
 	m_oldfreq = (best ? best->freq : 0.0);
 	return best;
 }
+ 
+void Analyzer::write(std::vector<float>& in) {
+    std::cout << "Analyzer::write: " << in.size() << std::endl;
+    input(in.begin(), in.end());
+}
+ 

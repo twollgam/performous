@@ -1,4 +1,6 @@
 #pragma once
+
+#include "analyzer.hh"
 #include "color.hh"
 #include "fs.hh"
 #include "notes.hh"

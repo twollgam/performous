@@ -19,10 +19,10 @@ Engine::Engine(Audio& audio, VocalTrackPtrs vocals, Database& database):
 	m_database.cur.clear();
 	m_database.scores.clear();
 	unsigned i = 0;
-	for (Analyzer& a: analyzers) {
+	for (const auto& analyzer : analyzers) {
 		// Calculate the space required for pitch frames
 		size_t frames = static_cast<size_t>(vocals[i]->endTime / Engine::TIMESTEP);
-		m_database.cur.push_back(Player(*vocals[i], a, frames));
+		m_database.cur.push_back(Player(*vocals[i], *analyzer, frames));
 		++i;
 	}
 	m_thread.reset(new std::thread(std::ref(*this)));

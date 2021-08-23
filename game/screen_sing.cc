@@ -677,7 +677,7 @@ void ScreenSing::drawMenu() {
 		txt->draw(window, it->getName());
 		if (it->value == &m_vocalTracks[player]) {
 			if (player < analyzers.size()) {
-				Color color = MicrophoneColor::get(analyzers[player].getId());
+				Color color = MicrophoneColor::get(analyzers[player]->getId());
 				ColorTrans c(window, color);
 				m_player_icon->dimensions.right(x).fixedHeight(0.040f).center(y);
 				m_player_icon->draw(window);

@@ -76,9 +76,11 @@ void ScreenPractice::draw_analyzers() {
 	double textFreq = 0.0;
 
 	for (unsigned int i = 0; i < analyzers.size(); ++i) {
-		Analyzer& analyzer = analyzers[i];
+		auto& analyzer = *analyzers[i];
+        
 		analyzer.process();
-		Tone const* tone = analyzer.findTone();
+        
+		auto const* tone = analyzer.findTone();
 		double freq = (tone ? tone->freq : 0.0);
 		if (tone && tone->db > textPower) {
 			textPower = tone->db;

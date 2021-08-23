@@ -12,9 +12,12 @@
 #include <cstdlib>
 #include <future>
 #include <iostream>
+#include <sstream>
+#include <list>
 #include <regex>
 #include <set>
 #include <stdexcept>
+#include <vector>
 
 #define PORTAUDIO_CHECKED(func, args) portaudio::internal::check(func args, #func)
 

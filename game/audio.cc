@@ -348,7 +348,7 @@ struct Output {
 	std::unique_ptr<Synth> synth;
 	std::unique_ptr<Music> preloading;
 	std::vector<std::unique_ptr<Music>> playing, disposing;
-	std::vector<Analyzer*> mics;  // Used for audio pass-through
+	std::vector<AnalyzerPtr> mics;  // Used for audio pass-through
 	std::unordered_map<std::string, std::unique_ptr<Sample>> samples;
 	std::vector<Command> commands;
 	std::atomic<bool> paused{ false };
@@ -405,7 +405,9 @@ struct Output {
 			float amp = 1.0f / config["audio/pass-through_ratio"].f();
 			if (amp != 1.0f) for (auto& s: boost::make_iterator_range(begin, end)) s *= amp;
 			// Do the mixing
-			for (auto& m: mics) if (m) m->output(begin, end, rate);
+			for (auto& m: mics) 
+				if (m) 
+					m->output(begin, end, rate);
 		}
 		// Mix in the samples currently playing
 		{
@@ -434,7 +436,8 @@ Device::Device(int in, int out, double rate, PaDeviceIndex dev):
   portaudio::Params().channelCount(in).device(dev).suggestedLatency(config["audio/latency"].f()),
   portaudio::Params().channelCount(out).device(dev).suggestedLatency(config["audio/latency"].f()), rate),
   mics(static_cast<size_t>(in), nullptr),
-  outptr()
+  outptr(),
+  m_buffers(in)
 {}
 
 void Device::start() {
@@ -455,22 +458,36 @@ bool Device::isChannel(std::string const& name) const {
 	return false;
 }
 
-int Device::operator()(float const* inbuf, float* outbuf, std::ptrdiff_t frames) try {
-	for (std::size_t i = 0; i < mics.size(); ++i) {
-		if (!mics[i]) continue;  // No analyzer? -> Channel not used
-		da::sample_const_iterator it = da::sample_const_iterator(inbuf + i, in);
-		mics[i]->input(it, it + frames);
+int Device::operator()(float const* inbuf, float* outbuf, std::ptrdiff_t frames) {
+	try {
+		for (std::size_t i = 0; i < mics.size(); ++i) {
+			if (!mics[i]) 
+				continue;  // No analyzer? -> Channel not used
+			//auto it = da::sample_const_iterator(inbuf + i, in);
+			//mics[i]->input(it, it + frames);
+			auto& buffer = m_buffers[i];
+			//buffer.assign(it, it + frames);
+			buffer.resize(frames);
+			for (auto n = 0U; n < frames; ++n)
+				buffer[n] = inbuf[n * in];
+		}
+	
+		if (outptr) 
+			outptr->callback(outbuf, outbuf + 2 * frames, rate);
+
+		push();
+        
+		return paContinue;
 	}
-	if (outptr) outptr->callback(outbuf, outbuf + 2 * frames, rate);
-	return paContinue;
-} catch (std::exception& e) {
-	std::cerr << "Exception in audio callback: " << e.what() << std::endl;
-	return paAbort;
+	catch (const std::exception& e) {
+		std::cerr << "Exception in audio callback: " << e.what() << std::endl;
+		return paAbort;
+	}
 }
 
 struct Audio::Impl {
 	Output output;
-	std::deque<Analyzer> analyzers;
+	std::deque<AnalyzerPtr> analyzers;
 	std::deque<Device> devices;
 	bool playback = false;
 	std::string selectedBackend = Audio::backendConfig().getValue();
@@ -540,12 +557,13 @@ struct Audio::Impl {
 					// Check that the color is not already taken
 					bool mic_used = false;
 					for (size_t mi = 0; mi < analyzers.size(); ++mi) {
-						if (analyzers[mi].getId() == m) { mic_used = true; break; }
+						if (analyzers[mi]->getId() == m) { mic_used = true; break; }
 					}
 					if (mic_used) continue;
 					// Add the new analyzer
-					analyzers.emplace_back(d.rate, m);
-					d.mics[j] = &analyzers.back();
+					analyzers.emplace_back(std::make_shared<Analyzer>(d.rate, m));
+					d.connect(analyzers.back());
+					d.mics[j] = analyzers.back();
 					++assigned_mics;
 				}
 				// Assign playback output for the first available stereo output
@@ -564,7 +582,7 @@ struct Audio::Impl {
 		}
 		// Assign mic buffers to the output for pass-through
 		for (size_t i = 0; i < analyzers.size(); ++i)
-			output.mics.push_back(&analyzers[i]);
+			output.mics.push_back(analyzers[i]);
 	}
 	~Impl() {
 		// stop all audio streams befor destoying the object.
@@ -736,7 +754,7 @@ void Audio::toggleCenterChannelSuppressor() {
 	}
 }
 
-std::deque<Analyzer>& Audio::analyzers() {
+std::deque<AnalyzerPtr>& Audio::analyzers() { 
 	return self->analyzers;
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <iostream>
 
 /// struct to represent tones
@@ -11,9 +12,9 @@ struct Tone {
 	double stabledb; ///< Stable level, useful for graphics rendering
 	double harmonics[MAXHARM]; ///< Harmonics' levels
 	std::size_t age = 0; ///< How many times the tone has been detected in row
-
+	
 	Tone();
-
+	
 	void print() const; ///< Prints Tone to std::cout
 	void print(std::ostream&) const; ///< Prints Tone to std::cout
 	bool operator==(double f) const; ///< Compare for rough frequency match

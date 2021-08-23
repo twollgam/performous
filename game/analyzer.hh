@@ -1,29 +1,31 @@
 #pragma once
 
+#include "audio/audiosinkbase.hh"
 #include "ringbuffer.hh"
 #include "tone.hh"
 
-#include <cstdint>
-#include <complex>
-#include <vector>
-#include <list>
 #include <algorithm>
 #include <cmath>
+#include <complex>
+#include <list>
+#include <string>
+#include <vector>
 
 static const unsigned FFT_P = 10;
 static const std::size_t FFT_N = 1 << FFT_P;
 
- /** class to analyze input audio and transform it to frequency domain to get tone data */
-class Analyzer {
-  public:
+/// analyzer class
+ /** class to analyze input audio and transform it into useable data
+ */
+class Analyzer : public audio::AudioSinkBase {
+public:
+	Analyzer(double rate, std::string id, std::size_t step = 200);
 	Analyzer(const Analyzer&) = delete;
 	const Analyzer& operator=(const Analyzer&) = delete;
 	/// fast fourier transform vector
-	using fft_t = std::vector<std::complex<float>>;
+	typedef std::vector<std::complex<float> > fft_t;
 	/// list of tones
-	using tones_t = std::list<Tone>;
-	/// constructor
-	Analyzer(double rate, std::string id, unsigned step = 200);
+	typedef std::list<Tone> tones_t;
 	/** Add input data to buffer. This is thread-safe (against other functions). **/
 	template <typename InIt> void input(InIt begin, InIt end) {
 		m_buf.insert(begin, end);
@@ -44,12 +46,15 @@ class Analyzer {
 	/** Returns the id (color name) of the mic */
 	std::string const& getId() const { return m_id; }
 
-  private:
+	void write(std::vector<float>& in) override;
+
+private:
 	bool calcFFT();
 	void calcTones();
 	void mergeWithOld(tones_t& tones) const;
 
-	const unsigned m_step;
+private:
+	const std::size_t m_step;
 	RingBuffer<2 * FFT_N> m_buf;  // Twice the FFT size should give enough room for sliding window and for engine delays
 	RingBuffer<4096> m_passthrough;
 	double m_resampleFactor;
@@ -63,3 +68,4 @@ class Analyzer {
 	tones_t m_tones;
 	mutable double m_oldfreq;
 };
+

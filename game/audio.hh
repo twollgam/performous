@@ -1,5 +1,7 @@
 #pragma once
 
+#include "analyzer.hh"
+#include "audio/audiosourcebase.hh"
 #include "configuration.hh"
 #include "ffmpeg.hh"
 #include "notes.hh"
@@ -46,15 +48,15 @@ class AudioClock {
 	Seconds pos() const;
 };
 
-class Analyzer;
+using AnalyzerPtr = std::shared_ptr<Analyzer>;
 
-struct Device {
+struct Device : public audio::AudioSourceBase {
 	// Init
 	const int in, out;
 	const double rate;
 	const PaDeviceIndex dev;
 	portaudio::Stream stream;
-	std::vector<Analyzer*> mics;
+	std::vector<AnalyzerPtr> mics;
 	Output* outptr;
 
 	Device(int in, int out, double rate, PaDeviceIndex dev);
@@ -68,6 +70,16 @@ struct Device {
 	bool isOutput() const { return outptr != nullptr; }
 	/// Returns true if this device is assigned to the named channel (mic color or "OUT")
 	bool isChannel(std::string const& name) const;
+	
+	size_t getAvailableSamples() const override {
+		return m_buffers[0].size();        
+	}
+	void read(std::vector<float>& data) override {
+		data.swap(m_buffers[0]);
+	}
+    
+private:
+	std::vector<std::vector<float>> m_buffers;
 };
 
 extern int getBackend();
@@ -90,7 +102,7 @@ class Audio {
 	~Audio();
 	void restart();
 	void close();
-	std::deque<Analyzer>& analyzers();
+	std::deque<AnalyzerPtr>& analyzers();
 	std::deque<Device>& devices();
 	bool isOpen() const;
 	bool hasPlayback() const;

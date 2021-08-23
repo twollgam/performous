@@ -2,27 +2,38 @@ cmake_minimum_required(VERSION 3.15)
 include(GoogleTest)
 
 set(SOURCE_FILES
-	"analyzertest.cc"
+	#"analyzertest.cc"
+	"audiosource_audiosink_test.cc"
 	"colortest.cc"
 	"configitemtest.cc"
 	"cycletest.cc"
 	"fixednotegraphscalertest.cc"
 	"notegraphscalerfactorytest.cc"
 	"printer.cc"
+	"resamplertest.cc"
 	"ringbuffertest.cc"
 	"utiltest.cc"
 )
 set(GAME_SOURCES
-	"../game/analyzer.cc"
+	"../game/audio/audiosinkbase.cc"
+	"../game/audio/audiosourcebase.cc"
+	"../game/audio/resampler.cc"
+	#"../game/analyzer.cc"
 	"../game/color.cc"
 	"../game/configitem.cc"
+	#"../game/configuration.cc"
 	"../game/dynamicnotegraphscaler.cc"
 	"../game/fixednotegraphscaler.cc"
+	#"../game/i18n.cc"
 	"../game/musicalscale.cc"
 	"../game/notes.cc"
 	"../game/notegraphscalerfactory.cc"
-	"../game/tone.cc"
+	#"../game/platform.cc"
+	#"../game/portaudio.cc"
+	#"../game/tone.cc"
 	"../game/util.cc"
+	#"../game/unicode.cc"
+	#"../3rdparty/ced/compact_enc_det/compact_enc_det.cc"
 )
 
 set(GTEST_REQUIRED "")
@@ -37,8 +48,12 @@ if(GTest_FOUND)
 	message(STATUS "Testing enabled: Building test host")
 
 	set(SOURCES ${SOURCE_FILES} ${HEADER_FILES} ${GAME_SOURCES})
-
 	add_executable(performous_test ${SOURCES})
+
+	# Generate config.hh
+	set(CONFIG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../game/config.cmake.hh")
+	configure_file(${CONFIG_FILE} "${CMAKE_CURRENT_BINARY_DIR}/config.hh" @ONLY)
+	include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
 	find_package(Boost 1.55 REQUIRED COMPONENTS program_options iostreams system locale)
 	target_link_libraries(performous_test PRIVATE ${Boost_LIBRARIES})
@@ -46,6 +61,18 @@ if(GTest_FOUND)
 	find_package(fmt REQUIRED CONFIG)
 	target_link_libraries(performous_test PRIVATE fmt::fmt)
 
+	find_package(ICU 60 REQUIRED uc data i18n io)
+	target_include_directories(performous_test SYSTEM PRIVATE ${ICU_INCLUDE_DIRS})
+	target_link_libraries(performous_test PRIVATE ${ICU_LIBRARIES})
+
+	foreach(lib ${OUR_LIBS} PortAudio)
+		find_package(${lib} REQUIRED)
+		message(STATUS "${lib} includes: ${${lib}_INCLUDE_DIRS}")
+		target_include_directories(performous_test SYSTEM PRIVATE ${${lib}_INCLUDE_DIRS})
+		target_link_libraries(performous_test PRIVATE ${${lib}_LIBRARIES})
+		add_definitions(${${lib}_DEFINITIONS})
+	endforeach(lib)
+	
 	if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.20)
 		target_link_libraries(performous_test PRIVATE GTest::gtest GTest::gtest_main GTest::gmock)
 	else()
