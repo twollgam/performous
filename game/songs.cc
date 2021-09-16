@@ -9,6 +9,7 @@
 #include "libxml++-impl.hh"
 #include "unicode.hh"
 #include "platform.hh"
+#include "songparserexception.hh"
 
 #include <algorithm>
 #include <cstdlib>
@@ -157,6 +158,9 @@ void Songs::CacheSonglist() {
     	}
     	if(!song->genre.empty()) {
         	songObject["Genre"] = web::json::value::string(song->genre);
+    	}
+    	if(song->getYear() > 0) {
+        	songObject["Year"] = web::json::value::number(song->getYear());
     	}
     	if(!song->cover.string().empty()) {
         	songObject["Cover"] = web::json::value::string(song->cover.string());

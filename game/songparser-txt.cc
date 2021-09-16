@@ -98,10 +98,10 @@ void SongParser::txtParse() {
 bool SongParser::txtParseField(std::string const& line) {
 	if (line.empty()) return true;
 	if (line[0] != '#') return false;
-	std::string::size_type pos = line.find(':');
+	auto pos = line.find(':');
 	if (pos == std::string::npos) throw std::runtime_error("Invalid txt format, should be #key:value");
-	std::string key = UnicodeUtil::toUpper(boost::trim_copy(line.substr(1, pos - 1)));
-	std::string value = boost::trim_copy(line.substr(pos + 1));
+	auto key = UnicodeUtil::toUpper(boost::trim_copy(line.substr(1, pos - 1)));
+	auto value = boost::trim_copy(line.substr(pos + 1));
 	if (value.empty()) return true;
 	
 	// Parse header data that is stored in SongParser rather than in song (and thus needs to be read every time)
@@ -129,6 +129,14 @@ bool SongParser::txtParseField(std::string const& line) {
 	else if (key == "VIDEOGAP") assign(m_song.videoGap, value);
 	else if (key == "PREVIEWSTART") assign(m_song.preview_start, value);
 	else if (key == "LANGUAGE") m_song.language = value.substr(value.find_first_not_of(" "));
+	else if (key == "YEAR") {
+		const auto yearString = value;
+		const auto year = std::stoul(yearString);
+        
+        std::cout << m_song.title << " " << year << std::endl;
+		m_song.setYear(year);
+	}
+	
 	return true;
 }
 

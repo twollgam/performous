@@ -25,6 +25,7 @@
 #include "screen_paths.hh"
 #include "screen_players.hh"
 #include "screen_playlist.hh"
+#include "screen_songfilter.hh"
 
 #include <boost/program_options.hpp>
 #include <cstdlib>
@@ -169,6 +170,7 @@ void mainLoop(std::string const& songlist) {
 		gm.addScreen(std::make_unique<ScreenPaths>("Paths", audio, songs));
 		gm.addScreen(std::make_unique<ScreenPlayers>("Players", audio, database));
 		gm.addScreen(std::make_unique<ScreenPlaylist>("Playlist", audio, songs, backgrounds));
+		gm.addScreen(std::make_unique<ScreenSongFilter>(gm, songs));
 		gm.activateScreen("Intro");
 		gm.loading(_("Entering main menu"), 0.8);
 		gm.updateScreen();  // exit/enter, any exception is fatal error

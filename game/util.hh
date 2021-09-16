@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <string>
@@ -35,6 +36,10 @@ template <typename T> T smoothstep(T edge0, T edge1, T x) {
 
 /** Convenience smoothstep wrapper with edges at 0 and 1 **/
 template <typename T> T smoothstep(T x) { return smoothstep<T>(0, 1, x); }
+
+std::string toLower(std::string const& s);
+std::string toUpper(std::string const& s);
+bool containsNoCase(std::string const& word, std::string const& part);    
 
 /** Symetric of lock_guard: release a lock in constructor and take it back in destructor */
 template <class Lockable>

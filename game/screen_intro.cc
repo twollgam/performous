@@ -173,6 +173,7 @@ void ScreenIntro::populateMenu() {
 	m_menu.clear();
 	m_menu.add(MenuOption(_("Perform"), _("Start performing!"), imgSing).screen("Songs"));
 	m_menu.add(MenuOption(_("Practice"), _("Check your skills or test the microphones"), imgPractice).screen("Practice"));
+	m_menu.add(MenuOption(_("Songfilter"), _("Configure song filters"), imgConfig).screen("SongFilter"));
 	// Configure menu + submenu options
 	MenuOptions configmain;
 	for (MenuEntry const& submenu: configMenu) {

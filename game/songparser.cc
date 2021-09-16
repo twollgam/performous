@@ -1,9 +1,11 @@
 #include "songparser.hh"
+#include "songparserexception.hh"
 #include "unicode.hh"
-#include <regex>
 
 #include <boost/algorithm/string.hpp>
+
 #include <fstream>
+#include <regex>
 
 
 namespace SongParserUtil {

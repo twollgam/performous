@@ -49,21 +49,24 @@ Song::Song(web::json::value const& song): dummyVocal(TrackName::LEAD_VOCAL), ran
 	}
 	
 	if (song.has_field("KeyboardTracks")) {
-			instrumentTracks.insert(make_pair(TrackName::KEYBOARD, InstrumentTrack(TrackName::KEYBOARD)));
+		instrumentTracks.insert(make_pair(TrackName::KEYBOARD, InstrumentTrack(TrackName::KEYBOARD)));
 	}
 	
 	if (song.has_field("DrumTracks")) {
-			instrumentTracks.insert(make_pair(TrackName::DRUMS, InstrumentTrack(TrackName::DRUMS)));
-	}		
+		instrumentTracks.insert(make_pair(TrackName::DRUMS, InstrumentTrack(TrackName::DRUMS)));
+	}
 	if (song.has_field("DanceTracks")) {
 		DanceDifficultyMap danceDifficultyMap;
-			danceTracks.insert(std::make_pair("dance-single", danceDifficultyMap));
-	}		
+		danceTracks.insert(std::make_pair("dance-single", danceDifficultyMap));
+	}
 	if (song.has_field("GuitarTracks")) {
-			instrumentTracks.insert(std::make_pair(TrackName::GUITAR, InstrumentTrack(TrackName::GUITAR)));
+		instrumentTracks.insert(std::make_pair(TrackName::GUITAR, InstrumentTrack(TrackName::GUITAR)));
 	}
 	if (song.has_field("BPM")) {
-			m_bpms.push_back(BPM(0, 0, song.at("BPM").as_number().to_double()));
+		m_bpms.push_back(BPM(0, 0, song.at("BPM").as_number().to_double()));
+	}
+	if (song.has_field("Year")) {
+		m_year = song.at("Year").as_number().to_uint32();
 	}
 	collateUpdate();
 }
@@ -147,13 +150,6 @@ bool Song::getPrevSection(double pos, SongSection &section) {
 	return false;
 }
 
-std::ostream& operator<<(std::ostream& os, SongParserException const& e) {
-	os << (e.silent() ? "songparser/debug: " : "songparser/warning: ") << e.file().string();
-	if (e.line()) os << ":" << e.line();
-	os << ":\n  " << e.what() << std::endl;
-	return os;
-}
-
 void Song::insertVocalTrack(std::string vocalTrack, VocalTrack track) {
 	eraseVocalTrack(vocalTrack);
 	vocalTracks.insert(std::make_pair(vocalTrack, track));
@@ -212,4 +208,13 @@ std::vector<std::string> Song::getVocalTrackNames() const {
 	for (auto const& kv: vocalTracks) result.push_back(kv.first);
 	return result;
 }
+
+unsigned Song::getYear() const {
+	return m_year;
+}
+
+void Song::setYear(unsigned year) {
+	m_year = year;
+}
+
 

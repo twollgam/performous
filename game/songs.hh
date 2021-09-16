@@ -76,6 +76,8 @@ class Songs {
 	std::atomic<bool> displayedAlert{ false };
 	size_t loadedSongs() const { return m_songs.size(); }
 
+	std::vector<std::shared_ptr<Song>> getSongs() const { return m_songs; }
+    
   private:
   	void LoadCache();
 	void CacheSonglist();
