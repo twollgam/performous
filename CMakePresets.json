@@ -2,11 +2,24 @@
   "version": 3,
   "configurePresets": [
     {
-      "name": "windows-base",
-      "description": "Target Windows with the Visual Studio development environment.",
+      "name": "default",
+      "description": "Target all platforms with the Visual Studio development environment.",
       "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "ENABLE_WEBSERVER": "AUTO",
+        "SELF_BUILT_AUBIO": "ALWAYS",
+        "SELF_BUILT_CED": "ALWAYS",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}-install",
+        "PERFORMOUS_VERSION": "$env{PERFORMOUS_VERSION}"
+      }
+    },
+    {
+      "name": "windows-base",
+      "description": "Target Windows with the Visual Studio development environment.",
+      "inherits": "default",
+      "hidden": true,
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -16,31 +29,18 @@
         "CMAKE_C_COMPILER": "cl.exe",
         "CMAKE_CXX_COMPILER": "cl.exe",
         "BUILD_SHARED_LIBS": "ON",
-        "ENABLE_WEBSERVER": "AUTO",
-        "SELF_BUILT_AUBIO": "ALWAYS",
-        "SELF_BUILT_CED": "ALWAYS",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}-install",
-        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "PERFORMOUS_VERSION": "$env{PERFORMOUS_VERSION}"
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
       }
     },
     {
       "name": "linux-base",
       "description": "Target Linux with the Visual Studio development environment.",
+      "inherits": "default",
       "hidden": true,
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Linux"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "ENABLE_WEBSERVER": "AUTO",
-        "SELF_BUILT_AUBIO": "ALWAYS",
-        "SELF_BUILT_CED": "ALWAYS",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}-install"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
