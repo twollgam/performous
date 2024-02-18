@@ -17,6 +17,7 @@ namespace audio {
         
         push();
     }
+
     void Resampler::read(std::vector<float>& data) {
         if(m_data.empty())
             return;

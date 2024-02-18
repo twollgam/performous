@@ -4,19 +4,21 @@ include(GoogleTest)
 set(SOURCE_FILES
 	#"analyzertest.cc"
 	"audiosource_audiosink_test.cc"
+	"audio_multiplier_test.cc"
+	"audio_resampler_test.cc"
 	"colortest.cc"
 	"configitemtest.cc"
 	"cycletest.cc"
 	"fixednotegraphscalertest.cc"
 	"notegraphscalerfactorytest.cc"
 	"printer.cc"
-	"resamplertest.cc"
 	"ringbuffertest.cc"
 	"utiltest.cc"
 )
 set(GAME_SOURCES
 	"../game/audio/audiosinkbase.cc"
 	"../game/audio/audiosourcebase.cc"
+	"../game/audio/multiplier.cc"
 	"../game/audio/resampler.cc"
 	#"../game/analyzer.cc"
 	"../game/color.cc"
