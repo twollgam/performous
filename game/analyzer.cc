@@ -88,13 +88,17 @@ namespace {
 bool Analyzer::calcFFT() {
 	float pcm[FFT_N];
 	// Read FFT_N samples, move forward by m_step samples
-	if (!m_buf.read(pcm, pcm + FFT_N)) return false;
+	if (!m_buf.read(pcm, pcm + FFT_N))
+		return false;
 	m_buf.pop(m_step);
 	// Peak level calculation of the most recent m_step samples (the rest is overlap)
 	for (float const* ptr = pcm + FFT_N - m_step; ptr != pcm + FFT_N; ++ptr) {
 		float s = *ptr;
 		float p = s * s;
-		if (p > m_peak) m_peak = p; else m_peak *= 0.999;
+		if (p > m_peak)
+			m_peak = p;
+		else 
+			m_peak *= 0.999;
 	}
 	// Calculate FFT
 	m_fft = da::fft<FFT_P>(pcm, m_window);

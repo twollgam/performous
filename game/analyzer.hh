@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ringbuffer.hh"
+#include "fft.hh"
 #include "tone.hh"
 
 #include <cstdint>
@@ -18,8 +19,6 @@ class Analyzer {
   public:
 	Analyzer(const Analyzer&) = delete;
 	const Analyzer& operator=(const Analyzer&) = delete;
-	/// fast fourier transform vector
-	using fft_t = std::vector<std::complex<float>>;
 	/// list of tones
 	using tones_t = std::list<Tone>;
 	/// constructor
