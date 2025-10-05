@@ -253,22 +253,17 @@ void ScreenSing::instrumentLayout(double time) {
         m_help->draw(window);
     }
     double iw = std::min(0.5, 1.0 / count_alive);
-    typedef std::pair<unsigned, double> CountSum;
-    std::map<std::string, CountSum> volume; // Stream id to (count, sum)
-    std::map<std::string, CountSum> pitchbend; // Stream id to (count, sum)
-    for (Instruments::iterator it = m_instruments.begin(); it != m_instruments.end(); ++it, ++i) {
-        (*it)->engine();
-        (*it)->position(static_cast<float>((0.5f + static_cast<float>(i) - 0.5f * static_cast<float>(count_alive)) * iw), static_cast<float>(iw)); // Do layout stuff
-        (*it)->draw(time);
-        {
-            CountSum& cs = volume[(*it)->getTrack()];
-            cs.first++;
-            cs.second += (*it)->correctness();
-        } {
-            CountSum& cs = pitchbend[(*it)->getTrack()];
-            cs.first++;
-            cs.second += (*it)->getWhammy();
-        }
+    auto volume = InstrumentGraph::AudioModification{}; // Stream id to (count, sum)
+    auto pitchbend = InstrumentGraph::AudioModification{}; // Stream id to (count, sum)
+    for (auto& item : m_instruments) {
+        auto& instrument = *item;
+        instrument.engine();
+        auto const x = static_cast<float>((0.5f + static_cast<float>(i) - 0.5f * static_cast<float>(count_alive)) * iw);
+        auto const y = static_cast<float>(iw);
+        instrument.position(x, y); // Do layout stuff
+        instrument.draw(time);
+        if (instrument.modifyAudioTrack(volume, pitchbend))
+            ++i;
     }
     // Set volume levels (averages of all instruments playing that track)
     for (auto const& track : m_song->music) {
@@ -276,9 +271,11 @@ void ScreenSing::instrumentLayout(double time) {
         std::string locName = _(name.c_str());  // FIXME: There should NOT be gettext calls here!
         double level = 1.0;
         if (volume.find(locName) != volume.end()) {
-            CountSum cs = volume[locName];
-            if (cs.first > 0) level = cs.second / cs.first;
-            if (m_song->music.size() <= 1) level = std::max(0.333, level);
+            auto const cs = volume[locName];
+            if (cs.first > 0)
+                level = cs.second / cs.first;
+            if (m_song->music.size() <= 1)
+                level = std::max(0.333, level);
         }
         if (name == "Vocals") {
             m_audio.streamFade(name, config["audio/mute_vocals_track"].b() ? 0.0 : 1.0);
@@ -293,7 +290,7 @@ void ScreenSing::instrumentLayout(double time) {
             m_audio.streamFade(name, level);
         }
         if (pitchbend.find(locName) != pitchbend.end()) {
-            CountSum cs = pitchbend[locName];
+            auto const cs = pitchbend[locName];
             level = cs.second;
             m_audio.streamBend(name, level);
         }
@@ -351,13 +348,17 @@ void ScreenSing::manageEvent(input::NavEvent const& event) {
             input::DevType type = input::DevType::GENERIC;
             std::string msg;
             for (input::Event ev; dev->getEvent(ev);) {
-                if (ev.value == 0.0) continue;
+                if (ev.value == 0.0) 
+                    continue;
                 if (dev->type == input::DevType::DANCEPAD && m_song->hasDance()) {
-                    if (ev.button == input::ButtonId::DANCEPAD_UP) type = dev->type;
-                    else msg = dev->source.isKeyboard() ? _("Press UP to join dance!") : _("Step UP to join!");
+                    if (ev.button == input::ButtonId::DANCEPAD_UP) 
+                        type = dev->type;
+                    else
+                        msg = dev->source.isKeyboard() ? _("Press UP to join dance!") : _("Step UP to join!");
                 }
                 else if (dev->type == input::DevType::GUITAR && m_song->hasGuitars()) {
-                    if (ev.button == input::ButtonId::GUITAR_GREEN) type = dev->type;
+                    if (ev.button == input::ButtonId::GUITAR_GREEN)
+                        type = dev->type;
                     else if (ev.button != input::ButtonId::GUITAR_WHAMMY && ev.button != input::ButtonId::GUITAR_GODMODE) {
                         msg = dev->source.isKeyboard() ? _("Press 1 to join guitar!") : _("Press GREEN to join!");
                     }

@@ -262,3 +262,18 @@ bool InstrumentGraph::menuOpen() const {
 	return m_menu.isOpen(); 
 }
 
+bool InstrumentGraph::modifyAudioTrack(AudioModification& volume, AudioModification& pitchbend) {
+	auto const trackName = getTrack();
+	{
+		CountSum& cs = volume[trackName];
+		cs.first++;
+		cs.second += correctness();
+	}
+	{
+		CountSum& cs = pitchbend[trackName];
+		cs.first++;
+		cs.second += getWhammy();
+	}
+
+	return true;
+}

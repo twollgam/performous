@@ -69,6 +69,10 @@ class ThemeInstrumentMenu;
 
 class InstrumentGraph {
 public:
+	using CountSum = std::pair<unsigned, double>;
+	using AudioModification = std::map<std::string, CountSum>; // Stream id to (count, sum)
+
+public:
 	/// Constructor
 	InstrumentGraph(Game &game, Audio& audio, Song const& song, input::DevicePtr dev);
 	/// Virtual destructor
@@ -105,6 +109,8 @@ public:
 	input::DevType getGraphType() const { return m_dev->type; }
 	virtual double getWhammy() const { return 0; }
 	bool isKeyboard() const { return m_dev->source.isKeyboard(); }
+	virtual bool ignoreLayout() const { return false; }
+	virtual bool modifyAudioTrack(AudioModification& volume, AudioModification& pitchbend);
 
   protected:
 	// Core stuff
