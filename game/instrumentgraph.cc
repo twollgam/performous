@@ -51,7 +51,10 @@ InstrumentGraph::InstrumentGraph(Game &game, Audio& audio, Song const& song, inp
 
 InstrumentGraph::~InstrumentGraph() = default;  // For destruction of unique_ptrs (only forward-declared in header)
 
-bool InstrumentGraph::dead() const { return m_jointime != m_jointime || m_dead >= death_delay; }
+bool InstrumentGraph::dead() const { 
+	return m_jointime != m_jointime  // TW: why this?
+		|| m_dead >= death_delay; 
+}
 
 void InstrumentGraph::setupPauseMenu() {
 	m_menu.clear();
@@ -78,8 +81,14 @@ void InstrumentGraph::quit(int) {
 }
 
 void InstrumentGraph::toggleMenu(int forcestate) {
-	if (forcestate == 1) { m_menu.open(); return; }
-	else if (forcestate == 0) { m_menu.close(); return; }
+	if (forcestate == 1) {
+		m_menu.open(); 
+		return;
+	}
+	if (forcestate == 0) {
+		m_menu.close(); 
+		return; 
+	}
 	m_menu.toggle();
 }
 
@@ -244,3 +253,12 @@ void InstrumentGraph::unjoin() {
 	m_countdown = 3;
 	m_ready = false;
 }
+
+bool InstrumentGraph::joining(double time) const {
+	return time < m_jointime;
+}
+
+bool InstrumentGraph::menuOpen() const { 
+	return m_menu.isOpen(); 
+}
+

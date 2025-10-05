@@ -103,10 +103,13 @@ void ScreenSing::prepareVoicesMenu(unsigned moveSelectionTo) {
     // Add vocal track selector for each player
     for (size_t player = 0; player < players(); ++player) {
         ConfigItem& vocalTrack = m_vocalTracks[player];
-        for (auto const& track : tracks) vocalTrack.addEnum(track.second.name);
+        for (auto const& track : tracks) 
+            vocalTrack.addEnum(track.second.name);
         if (tracks.size() > 1) {
-            if (player % 2) vocalTrack.selectEnum(m_song->getVocalTrack(SongParserUtil::DUET_P2).name);  // Every other player gets the second track
-            else vocalTrack.selectEnum(m_song->getVocalTrack(TrackName::VOCAL_LEAD).name);
+            if (player % 2) 
+                vocalTrack.selectEnum(m_song->getVocalTrack(SongParserUtil::DUET_P2).name);  // Every other player gets the second track
+            else
+                vocalTrack.selectEnum(m_song->getVocalTrack(TrackName::VOCAL_LEAD).name);
         }
         m_menu.add(MenuOption("", _("Change vocal track"))).changer(vocalTrack);
         if (m_duet.ui() == 1) {
@@ -117,7 +120,8 @@ void ScreenSing::prepareVoicesMenu(unsigned moveSelectionTo) {
     m_menu.add(MenuOption(_("Quit"), _("Exit to song browser"))).screen("Songs");
     m_menu.select(moveSelectionTo);
     m_menu.open();
-    if (tracks.size() <= 1) setupVocals();  // No duet menu
+    if (tracks.size() <= 1) 
+        setupVocals();  // No duet menu
 }
 
 void ScreenSing::setupVocals() {
@@ -140,14 +144,20 @@ void ScreenSing::setupVocals() {
             m_layout_singer.push_back(std::move(layoutSingerPtr));
         }
         // Note: Engine maps tracks with analyzers 1:1. If user doesn't have mics, we still want to have singer layout enabled but without engine...
-        if (!analyzers.empty()) m_engine = std::make_unique<Engine>(m_audio, selectedTracks, m_database);
+        if (!analyzers.empty())
+            m_engine = std::make_unique<Engine>(m_audio, selectedTracks, m_database);
     }
     createPauseMenu();
     bool sameVoice = true;
     for (size_t player = 0; player < players(); ++player) {
         ConfigItem& vocalTrack = m_vocalTracks[player];
-        if (player == 0) { m_selectedVocal = vocalTrack.ui(); }
-        if (vocalTrack.ui() != m_selectedVocal) { sameVoice = false; break; }
+        if (player == 0) { 
+            m_selectedVocal = vocalTrack.ui();
+        }
+        if (vocalTrack.ui() != m_selectedVocal) {
+            sameVoice = false;
+            break;
+        }
     }
     m_singingDuet = (m_song->hasDuet() && m_duet.ui() == 0 && players() > 1 && sameVoice != true);
     m_audio.pause(false);
@@ -181,7 +191,8 @@ void ScreenSing::reloadGL() {
     m_help = std::make_unique<Texture>(findFile("instrumenthelp.svg"));
     m_progress = std::make_unique<ProgressBar>(findFile("sing_progressbg.svg"), findFile("sing_progressfg.svg"), ProgressBar::Mode::HORIZONTAL, 0.01f, 0.01f, true);
     // Load background
-    if (!m_song->background.empty()) m_background = std::make_unique<Texture>(m_song->background);
+    if (!m_song->background.empty()) 
+        m_background = std::make_unique<Texture>(m_song->background);
 }
 
 void ScreenSing::exit() {
@@ -201,7 +212,8 @@ void ScreenSing::exit() {
     m_menuTheme.reset();
     theme.reset();
     m_audio.fadeout(getGame(), 0);
-    if (m_audio.isPaused()) m_audio.togglePause();
+    if (m_audio.isPaused())
+        m_audio.togglePause();
     getGame().showLogo();
 }
 
@@ -218,20 +230,22 @@ void ScreenSing::instrumentLayout(double time) {
     auto& window = getGame().getWindow();
     int count_alive = 0, count_menu = 0, i = 0;
     // Remove dead instruments and do the counting
-    for (Instruments::iterator it = m_instruments.begin(); it != m_instruments.end(); ) {
-        if ((*it)->dead()) {
+    for (Instruments::iterator item = m_instruments.begin(); item != m_instruments.end(); ) {
+        if ((*item)->dead()) {
             std::cout << "remove dead instrument" << std::endl;
-            it = m_instruments.erase(it);
+            item = m_instruments.erase(item);
             continue;
         }
         ++count_alive;
-        if ((*it)->menuOpen()) ++count_menu;
-        ++it;
+        if ((*item)->menuOpen())
+            ++count_menu;
+        ++item;
     }
     if (count_alive > 0) {
         // Handle pause
         bool shouldPause = count_menu > 0 || m_menu.isOpen();
-        if (shouldPause != m_audio.isPaused()) m_audio.togglePause();
+        if (shouldPause != m_audio.isPaused())
+            m_audio.togglePause();
     }
     else if (time < -0.5) {
         // Display help if no-one has joined yet
@@ -315,13 +329,18 @@ void ScreenSing::manageEvent(input::NavEvent const& event) {
     Song::Status status = m_song->status(time, this);
     // When score window is displayed
     if (m_score_window.get()) {
-        if (nav == input::NavButton::START || nav == input::NavButton::CANCEL) activateNextScreen();
+        if (nav == input::NavButton::START || nav == input::NavButton::CANCEL) 
+            activateNextScreen();
         return;  // The rest are only available when score window is not displayed
     }
     // Instant quit with CANCEL at the very beginning
     if (nav == input::NavButton::CANCEL && time < 1.0) {
-        if (m_menu.isOpen()) { m_menu.moveToLast(); }
-        else { getGame().activateScreen(config["game/autoplay"].b() ? "Songs" : "Playlist"); }
+        if (m_menu.isOpen()) { 
+            m_menu.moveToLast();
+        }
+        else {
+            getGame().activateScreen(config["game/autoplay"].b() ? "Songs" : "Playlist");
+        }
         return;
     }
 
@@ -344,8 +363,10 @@ void ScreenSing::manageEvent(input::NavEvent const& event) {
                     }
                 }
                 else if (dev->type == input::DevType::DRUMS && m_song->hasDrums()) {
-                    if (ev.button == input::ButtonId::DRUMS_KICK) type = dev->type;
-                    else msg = dev->source.isKeyboard() ? _("Press SPACE to join drums!") : _("KICK to join!");
+                    if (ev.button == input::ButtonId::DRUMS_KICK)
+                        type = dev->type;
+                    else 
+                        msg = dev->source.isKeyboard() ? _("Press SPACE to join drums!") : _("KICK to join!");
                 }
             }
             if (!msg.empty())
@@ -366,22 +387,42 @@ void ScreenSing::manageEvent(input::NavEvent const& event) {
     // Global/singer pause menu navigation
     if (m_menu.isOpen()) {
         int do_action = 0;
-        if (nav == input::NavButton::START) { do_action = 1; }
+        if (nav == input::NavButton::START) { 
+            do_action = 1;
+        }
         else if (nav == input::NavButton::LEFT) {
-            if (m_menu.current().type == MenuOption::Type::CHANGE_VALUE) { do_action = -1; }
-            else { m_menu.move(-1); return; }
+            if (m_menu.current().type == MenuOption::Type::CHANGE_VALUE) { 
+                do_action = -1;
+            }
+            else {
+                m_menu.move(-1);
+                return;
+            }
         }
         else if (nav == input::NavButton::RIGHT) {
-            if (m_menu.current().type == MenuOption::Type::CHANGE_VALUE) { do_action = 1; }
-            else { m_menu.move(1); return; }
+            if (m_menu.current().type == MenuOption::Type::CHANGE_VALUE) { 
+                do_action = 1;
+            }
+            else {
+                m_menu.move(1);
+                return;
+            }
         }
-        else if (nav == input::NavButton::DOWN) { m_menu.move(1); return; }
-        else if (nav == input::NavButton::UP) { m_menu.move(-1); return; }
+        else if (nav == input::NavButton::DOWN) {
+            m_menu.move(1);
+            return;
+        }
+        else if (nav == input::NavButton::UP) {
+            m_menu.move(-1);
+            return; 
+        }
 
         if (do_action != 0) {
             std::string currentOption = m_menu.current().getVirtName();
             m_menu.action(getGame(), do_action);
-            if (currentOption == "song/duet") { prepareVoicesMenu(m_menu.curIndex()); }
+            if (currentOption == "song/duet") {
+                prepareVoicesMenu(m_menu.curIndex()); 
+            }
             // Did the action close the menu?
             if (!m_menu.isOpen() && m_audio.isPaused()) {
                 m_audio.togglePause();
@@ -398,15 +439,18 @@ void ScreenSing::manageEvent(input::NavEvent const& event) {
         }
         // Skip instrumental breaks
         else if (status == Song::Status::INSTRUMENTAL_BREAK) {
-            if (time < 0) m_audio.seek(0.0);
+            if (time < 0)
+                m_audio.seek(0.0);
             else {
                 // TODO: Instead of calculating here, calculate instrumental breaks right after song loading and store in Song data structures
                 double diff = getNaN();
                 for (size_t i = 0; i < m_layout_singer.size(); ++i) {
                     double d = m_layout_singer[i]->lyrics_begin() - 3.0 - time;
-                    if (!(d > diff)) diff = d;  // Store smallest d in diff (notice NaN handling)
+                    if (!(d > diff)) 
+                        diff = d;  // Store smallest d in diff (notice NaN handling)
                 }
-                if (diff > 0.0) m_audio.seek(diff);
+                if (diff > 0.0) 
+                    m_audio.seek(diff);
             }
         }
     }
@@ -416,8 +460,11 @@ void ScreenSing::manageEvent(input::NavEvent const& event) {
 void ScreenSing::manageEvent(SDL_Event event) {
     keyPressed = true;
     // Check to see if a menu is open and bail out before changes can be made
-    if (m_score_window.get() || m_menu.isOpen()) return;
-    for (auto& i : m_instruments) if (!i->menuOpen()) return;
+    if (m_score_window.get() || m_menu.isOpen())
+        return;
+    for (auto& i : m_instruments)
+        if (!i->menuOpen())
+            return;
     double time = m_audio.getPosition();
     SDL_Scancode key = event.key.keysym.scancode;
     // Ctrl combinations that can be used while performing
@@ -427,22 +474,26 @@ void ScreenSing::manageEvent(SDL_Event event) {
             ++config["audio/suppress_center_channel"];
             dispInFlash(getGame(), config["audio/suppress_center_channel"]);
         }
-        if (key == SDL_SCANCODE_S) m_audio.toggleSynth(m_song->getVocalTrack(m_selectedTrack).notes);
+        if (key == SDL_SCANCODE_S)
+            m_audio.toggleSynth(m_song->getVocalTrack(m_selectedTrack).notes);
         if (key == SDL_SCANCODE_V) {
             config["audio/mute_vocals_track"].b() = !config["audio/mute_vocals_track"].b();
             m_audio.streamFade("Vocals", config["audio/mute_vocals_track"].b() ? 0.0 : 1.0);
             dispInFlash(getGame(), config["audio/mute_vocals_track"]);
         }
         if (key == SDL_SCANCODE_K) { // Toggle karaoke mode
-            if (config["game/karaoke_mode"].ui() >= 2) config["game/karaoke_mode"].ui() = 0;
-            else ++config["game/karaoke_mode"];
+            if (config["game/karaoke_mode"].ui() >= 2) 
+                config["game/karaoke_mode"].ui() = 0;
+            else
+                ++config["game/karaoke_mode"];
             dispInFlash(getGame(), config["game/karaoke_mode"]);
         }
         if (key == SDL_SCANCODE_H) {
             config["game/Textstyle"].ui() ? config["game/Textstyle"].ui() = 0 : ++config["game/Textstyle"].ui();
             dispInFlash(getGame(), config["game/Textstyle"]);
         }
-        if (key == SDL_SCANCODE_W) dispInFlash(getGame(), ++config["game/pitch"]); // Toggle pitch wave
+        if (key == SDL_SCANCODE_W)
+            dispInFlash(getGame(), ++config["game/pitch"]); // Toggle pitch wave
         // Toggle webcam
         if (key == SDL_SCANCODE_A && Webcam::enabled()) {
             // Initialize if we haven't done that already
@@ -457,16 +508,25 @@ void ScreenSing::manageEvent(SDL_Event event) {
             }
         }
         // Latency settings
-        if (key == SDL_SCANCODE_COMMA) dispInFlash(getGame(), --config["audio/video_delay"]);
-        if (key == SDL_SCANCODE_PERIOD) dispInFlash(getGame(), ++config["audio/video_delay"]);
-        if (key == SDL_SCANCODE_MINUS) dispInFlash(getGame(), --config["audio/round-trip"]);
-        if (key == SDL_SCANCODE_EQUALS) dispInFlash(getGame(), ++config["audio/round-trip"]);
-        if (key == SDL_SCANCODE_LEFTBRACKET) dispInFlash(getGame(), --config["audio/controller_delay"]);
-        if (key == SDL_SCANCODE_RIGHTBRACKET) dispInFlash(getGame(), ++config["audio/controller_delay"]);
+        if (key == SDL_SCANCODE_COMMA)
+            dispInFlash(getGame(), --config["audio/video_delay"]);
+        if (key == SDL_SCANCODE_PERIOD)
+            dispInFlash(getGame(), ++config["audio/video_delay"]);
+        if (key == SDL_SCANCODE_MINUS) 
+            dispInFlash(getGame(), --config["audio/round-trip"]);
+        if (key == SDL_SCANCODE_EQUALS)
+            dispInFlash(getGame(), ++config["audio/round-trip"]);
+        if (key == SDL_SCANCODE_LEFTBRACKET) 
+            dispInFlash(getGame(), --config["audio/controller_delay"]);
+        if (key == SDL_SCANCODE_RIGHTBRACKET)
+            dispInFlash(getGame(), ++config["audio/controller_delay"]);
         bool seekback = false;
 
         if (m_song->danceTracks.empty()) { // Seeking backwards is currently not permitted for dance songs
-            if (key == SDL_SCANCODE_HOME) { m_audio.seekPos(0.0); seekback = true; }
+            if (key == SDL_SCANCODE_HOME) {
+                m_audio.seekPos(0.0); 
+                seekback = true;
+            }
             if (key == SDL_SCANCODE_LEFT) {
                 Song::SongSection section("error", 0);
                 if (m_song->getPrevSection(m_audio.getPosition(), section)) {
@@ -474,7 +534,8 @@ void ScreenSing::manageEvent(SDL_Event event) {
                     // TODO: display popup with section.name here
                     SpdLogger::info(LogSystem::DANCING, "Section={}", section.name);
                 }
-                else m_audio.seek(-5.0);
+                else
+                    m_audio.seek(-5.0);
                 seekback = true;
             }
         }
@@ -485,7 +546,8 @@ void ScreenSing::manageEvent(SDL_Event event) {
                 // TODO: display popup with section.name here
                 SpdLogger::info(LogSystem::DANCING, "Section={}", section.name);
             }
-            else m_audio.seek(5.0);
+            else 
+                m_audio.seek(5.0);
         }
 
         // Some things must be reset after seeking backwards
@@ -521,13 +583,17 @@ void ScreenSing::prepare() {
     // Enable/disable controllers as needed (mostly so that keyboard navigation will not be obstructed).
     getGame().controllers.enableEvents(m_song->hasControllers() && !m_menu.isOpen() && !m_score_window.get());
     double time = m_audio.getPosition();
-    if (m_video) m_video->prepare(time);
+    if (m_video)
+        m_video->prepare(time);
     // Menu mangling
     // We don't allow instrument menus during global menu
     // except for joining, in which case global menu is closed
     if (m_menu.isOpen()) {
         for (auto& i : m_instruments) {
-            if (i->joining(time)) m_menu.close(); else i->toggleMenu(0);
+            if (i->joining(time))
+                m_menu.close();
+            else
+                i->toggleMenu(0);
         }
     }
 }
@@ -535,9 +601,12 @@ void ScreenSing::prepare() {
 /// Test if a given device type can join the current song.
 // TODO: Somehow avoid duplicating these same checks in ScreenSing::prepare.
 bool ScreenSing::devCanParticipate(input::DevType const& devType) const {
-    if (devType == input::DevType::DANCEPAD && m_song->hasDance()) return true;
-    if (devType == input::DevType::GUITAR && m_song->hasGuitars()) return true;
-    if (devType == input::DevType::DRUMS && m_song->hasDrums()) return true;
+    if (devType == input::DevType::DANCEPAD && m_song->hasDance())
+        return true;
+    if (devType == input::DevType::GUITAR && m_song->hasGuitars())
+        return true;
+    if (devType == input::DevType::DRUMS && m_song->hasDrums())
+        return true;
     return false;
 }
 
@@ -560,9 +629,11 @@ void ScreenSing::draw() {
         Transform ft(window, farTransform());
         float ar = arMax;
         // Background image
-        if (!m_background || m_background->empty()) m_background = std::make_unique<Texture>(m_backgrounds.getRandom());
+        if (!m_background || m_background->empty())
+            m_background = std::make_unique<Texture>(m_backgrounds.getRandom());
         ar = m_background->dimensions.ar();
-        if (ar > arMax || (m_video && ar > arMin)) fillBG(window);  // Fill white background to avoid black borders
+        if (ar > arMax || (m_video && ar > arMin))
+            fillBG(window);  // Fill white background to avoid black borders
         m_background->draw(window);
         // Webcam
         if (m_cam && config["graphic/webcam"].b())
@@ -582,13 +653,24 @@ void ScreenSing::draw() {
         theme->bg_top.draw(window);
     }
 
-    for (unsigned i = 0; i < m_layout_singer.size(); ++i) m_layout_singer[i]->hideLyrics(m_audio.isPaused());
+    for (unsigned i = 0; i < m_layout_singer.size(); ++i)
+        m_layout_singer[i]->hideLyrics(m_audio.isPaused());
 
     instrumentLayout(time);
 
-    bool fullSinger = m_instruments.empty() && m_layout_singer.size() <= 1;
+    auto const ignoreInstruments = std::all_of(m_instruments.begin(), m_instruments.end(), [](auto const& instrument) {return instrument->ignoreLayout(); });
+    auto const fullSinger = (m_instruments.empty() || ignoreInstruments) && m_layout_singer.size() <= 1;
     for (unsigned i = 0; i < m_layout_singer.size(); ++i) {
-        m_layout_singer[i]->draw(window, time, fullSinger ? LayoutSinger::PositionMode::FULL : (i == 0 ? LayoutSinger::PositionMode::TOP : LayoutSinger::PositionMode::BOTTOM));
+        auto position = LayoutSinger::PositionMode::FULL;
+
+        if (!fullSinger) {
+            if (i == 0)
+                position = LayoutSinger::PositionMode::TOP;
+            else
+                position = LayoutSinger::PositionMode::BOTTOM;
+        }
+
+        m_layout_singer[i]->draw(window, time, position);
     }
 
     Song::Status status = m_song->status(time, this);
@@ -660,10 +742,16 @@ void ScreenSing::draw() {
         if (m_score_window.get()) {
             // Score window has been created (we are near the end)
             if (m_score_window->empty()) {  // No players to display scores for
-                if (!m_audio.isPlaying()) { activateNextScreen(); return; }
+                if (!m_audio.isPlaying()) {
+                    activateNextScreen();
+                    return;
+                }
             }
             else {  // Window being displayed
-                if (m_quitTimer.get() == 0.0 && !m_audio.isPaused()) { activateNextScreen(); return; }
+                if (m_quitTimer.get() == 0.0 && !m_audio.isPaused()) {
+                    activateNextScreen();
+                    return;
+                }
                 m_score_window->draw();
             }
         }
@@ -671,7 +759,8 @@ void ScreenSing::draw() {
             && m_audio.getLength() - time <= (m_song->instrumentTracks.empty() && m_song->danceTracks.empty() ? 3.0 : 0.2))) {
             // Time to create the score window
             m_quitTimer.setValue(config["game/results_timeout"].ui());
-            if (m_engine) m_engine->kill(); // kill the engine thread (to avoid consuming memory)
+            if (m_engine)
+                m_engine->kill(); // kill the engine thread (to avoid consuming memory)
             m_score_window = std::make_unique<ScoreWindow>(getGame(), m_instruments, m_database);
         }
     }
@@ -708,15 +797,15 @@ void ScreenSing::drawMenu() {
     w = 0;
     std::size_t player = 0;
     auto& analyzers = m_audio.analyzers();
-    for (MenuOptions::const_iterator it = m_menu.begin(); it != m_menu.end(); ++it) {
+    for (MenuOptions::const_iterator item = m_menu.begin(); item != m_menu.end(); ++item) {
         // Pick the font object
         SvgTxtTheme* txt = &th.option_selected;
-        if (cur != &*it)
-            txt = &(th.getCachedOption(it->getName()));
+        if (cur != &*item)
+            txt = &(th.getCachedOption(item->getName()));
         // Set dimensions and draw
         txt->dimensions.middle(x).center(y);
-        txt->draw(window, it->getName());
-        if (it->value == &m_vocalTracks[player]) {
+        txt->draw(window, item->getName());
+        if (item->value == &m_vocalTracks[player]) {
             if (player < analyzers.size()) {
                 auto const color = getMicrophoneColor(analyzers[player].getId());
                 ColorTrans c(window, color);

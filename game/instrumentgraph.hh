@@ -95,9 +95,9 @@ public:
 	void unjoin();
 
 	// General getters
-	bool joining(double time) const { return time < m_jointime; }
+	bool joining(double time) const;
 	bool ready() const { return m_ready; };
-	bool menuOpen() const { return m_menu.isOpen(); }
+	bool menuOpen() const;
 	void position(float cx, float width) { m_cx.setTarget(cx); m_width.setTarget(width); }
 	size_t stream() const { return m_stream; }
 	double correctness() const { return m_correctness.get(); }

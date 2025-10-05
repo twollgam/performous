@@ -124,7 +124,7 @@ public:
 	bool hasGuitars() const { return instrumentTracks.size() - hasDrums() - hasKeyboard(); }
 	bool hasVocals() const { return !vocalTracks.empty(); }
 	bool hasDuet() const { return vocalTracks.size() > 1; }
-	bool hasControllers() const { return !danceTracks.empty() || !instrumentTracks.empty(); }
+	bool hasControllers() const;
 	bool getNextSection(double pos, SongSection &section);
 	bool getPrevSection(double pos, SongSection &section);
 	double getPreviewStart();

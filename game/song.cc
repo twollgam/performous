@@ -154,6 +154,11 @@ Song::Status Song::status(double time, ScreenSing* song) {
 	return Status::NORMAL;
 }
 
+bool Song::hasControllers() const { 
+	return !danceTracks.empty() || !instrumentTracks.empty()
+		|| true; //TW: temporary for debugging
+}
+
 bool Song::getNextSection(double pos, SongSection& section) {
 	for (auto& sect : songsections) {
 		if (sect.begin > pos) {

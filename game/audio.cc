@@ -720,8 +720,13 @@ void Audio::seekPos(double pos) {
 	pause(false);
 }
 
-void Audio::pause(bool state) { self->output.paused = state; }
-bool Audio::isPaused() const { return self->output.paused; }
+void Audio::pause(bool state) { 
+	self->output.paused = state;
+}
+
+bool Audio::isPaused() const {
+	return self->output.paused;
+}
 
 void Audio::streamFade(std::string track, double fadeLevel) {
 	Output& o = self->output;

@@ -7,7 +7,7 @@
 #include "texture.hh"
 
 MenuOption::MenuOption(std::string const& nm, std::string const& comm, MenuImage img):
-  type(), value(), newValue(), callback(), image(img), name(nm), comment(comm), namePtr(), commentPtr()
+  image(img), name(nm), comment(comm)
 {}
 
 std::string MenuOption::getName() const {
@@ -33,7 +33,10 @@ bool MenuOption::isActive() const {
 }
 
 
-Menu::Menu(): dimensions(), m_open(true) { clear(); }
+Menu::Menu()
+	: dimensions() {
+	clear();
+}
 
 MenuOption &Menu::add(MenuOption opt) {
 	root_options.emplace_back(std::move(opt));
@@ -124,4 +127,8 @@ void Menu::closeSubmenu() {
 		menu_stack.pop_back();
 		selection_stack.pop_back();
 	} else close();
+}
+
+bool Menu::isOpen() const {
+	return m_open; 
 }

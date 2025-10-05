@@ -182,3 +182,7 @@ void LayoutSinger::draw(Window& window, double time, PositionMode position) {
 double LayoutSinger::lyrics_begin() const {
 	return m_lyricit->begin;
 }
+
+void LayoutSinger::hideLyrics(bool hide) { 
+	m_hideLyrics = hide;
+}

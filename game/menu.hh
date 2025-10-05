@@ -60,7 +60,7 @@ public:
 	const std::string& getComment() const;
 	/// Check if this option can be selected
 	bool isActive() const;
-	ConfigItem* value;  ///< Setting to be adjusted
+	ConfigItem* value = nullptr;  ///< Setting to be adjusted
 	ConfigItem newValue;  ///< Value to be set or screen name
 	MenuOptions options;  ///< Submenu
 	MenuOptionCallback callback;  ///< Callback function
@@ -69,8 +69,8 @@ private:
 	std::string virtualName; ///< Non-localized name for referring to options that exist only on-screen.
 	std::string name;        ///< Option name (it will be displayed as this)
 	std::string comment;     ///< Extended information about the option displayed usually when selected
-	std::string* namePtr;    ///< Optional pointer to dynamically changing name
-	std::string* commentPtr; ///< Optional pointer to dynamically changing comment
+	std::string* namePtr = nullptr;    ///< Optional pointer to dynamically changing name
+	std::string* commentPtr = nullptr; ///< Optional pointer to dynamically changing comment
 };
 
 class Game;
@@ -94,7 +94,7 @@ public:
 	void closeSubmenu();
 
 	bool empty() const { return (menu_stack.empty() || (menu_stack.size() == 1 && menu_stack.back()->empty())); }
-	bool isOpen() const { return m_open; }
+	bool isOpen() const;
 	unsigned getSubmenuLevel() const { return static_cast<unsigned>(menu_stack.size() - 1); }
 	void open() { m_open = true; }
 	void close() { m_open = false; }
@@ -114,6 +114,5 @@ private:
 	MenuOptions root_options;
 	SubmenuStack menu_stack;
 	std::vector<unsigned> selection_stack;
-
-	bool m_open;
+	bool m_open = true;
 };
