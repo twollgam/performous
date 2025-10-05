@@ -1,0 +1,83 @@
+<svg width="900" height="240" viewBox="0 0 900 240"
+     xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gitarrengriffbrett mit halbtransparentem Holz">
+  <title>Gitarrengriffbrett — Sattel rechts, tiefe Saiten oben</title>
+  <desc>6-saitig, 12 Bünde. Tiefe E oben, Nut rechts. Bundnummern mittig. Halbtransparenter Holzton.</desc>
+
+  <style>
+    .board { fill: #d2a679; fill-opacity: 0.5; stroke: #a67c52; stroke-width: 1; } /* wärmeres Holz, halbtransparent */
+    .fret  { stroke: #8b6b4a; stroke-width: 2; }
+    .nut   { stroke: #333; stroke-width: 8; }
+    .string { stroke: #666; stroke-linecap: round; }
+    .marker-dot { fill: #9a9280; }
+    .label { font: 12px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #444; }
+    .fretno { font: 10px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: #666; }
+  </style>
+
+  <!-- Griffbrett -->
+  <rect class="board" x="60" y="30" width="800" height="160" rx="8"/>
+
+  <!-- Saiten -->
+  <g id="strings">
+    <line class="string" x1="60"  y1="40"  x2="860" y2="40"  stroke-width="1.8"/>
+    <line class="string" x1="60"  y1="68"  x2="860" y2="68"  stroke-width="1.3"/>
+    <line class="string" x1="60"  y1="96"  x2="860" y2="96"  stroke-width="1.4"/>
+    <line class="string" x1="60"  y1="124" x2="860" y2="124" stroke-width="1.6"/>
+    <line class="string" x1="60"  y1="152" x2="860" y2="152" stroke-width="1.4"/>
+    <line class="string" x1="60"  y1="180" x2="860" y2="180" stroke-width="1.2"/>
+  </g>
+
+  <!-- Nut (rechts) -->
+  <line class="nut" x1="860" y1="30" x2="860" y2="190"/>
+
+  <!-- Frets -->
+  <g id="frets">
+    <line class="fret" x1="793.3333" y1="30" x2="793.3333" y2="190"/>
+    <line class="fret" x1="726.6667" y1="30" x2="726.6667" y2="190"/>
+    <line class="fret" x1="660"       y1="30" x2="660"       y2="190"/>
+    <line class="fret" x1="593.3333"  y1="30" x2="593.3333"  y2="190"/>
+    <line class="fret" x1="526.6667"  y1="30" x2="526.6667"  y2="190"/>
+    <line class="fret" x1="460"       y1="30" x2="460"       y2="190"/>
+    <line class="fret" x1="393.3333"  y1="30" x2="393.3333"  y2="190"/>
+    <line class="fret" x1="326.6667"  y1="30" x2="326.6667"  y2="190"/>
+    <line class="fret" x1="260"       y1="30" x2="260"       y2="190"/>
+    <line class="fret" x1="193.3333"  y1="30" x2="193.3333"  y2="190"/>
+    <line class="fret" x1="126.6667"  y1="30" x2="126.6667"  y2="190"/>
+    <line class="fret" x1="60"        y1="30" x2="60"        y2="190"/>
+  </g>
+
+  <!-- Bundmarker -->
+  <g id="markers">
+    <circle class="marker-dot" cx="693.3333" cy="110" r="8"/>
+    <circle class="marker-dot" cx="560"      cy="110" r="8"/>
+    <circle class="marker-dot" cx="426.6667" cy="110" r="8"/>
+    <circle class="marker-dot" cx="293.3333" cy="110" r="8"/>
+    <circle class="marker-dot" cx="93.3333" cy="80"  r="7"/>
+    <circle class="marker-dot" cx="93.3333" cy="140" r="7"/>
+  </g>
+
+  <!-- Saiten-Beschriftung -->
+  <g id="string-labels">
+    <text class="label" x="866" y="40"  text-anchor="start">E</text>
+    <text class="label" x="866" y="68"  text-anchor="start">A</text>
+    <text class="label" x="866" y="96"  text-anchor="start">D</text>
+    <text class="label" x="866" y="124" text-anchor="start">G</text>
+    <text class="label" x="866" y="152" text-anchor="start">B</text>
+    <text class="label" x="866" y="180" text-anchor="start">E</text>
+  </g>
+
+  <!-- Bundnummern -->
+  <g id="fret-numbers" class="fretno" text-anchor="middle">
+    <text x="824"    y="24">1</text>
+    <text x="757"    y="24">2</text>
+    <text x="690"    y="24">3</text>
+    <text x="623.33" y="24">4</text>
+    <text x="556.67" y="24">5</text>
+    <text x="490"    y="24">6</text>
+    <text x="423.33" y="24">7</text>
+    <text x="356.67" y="24">8</text>
+    <text x="290"    y="24">9</text>
+    <text x="223.33" y="24">10</text>
+    <text x="156.67" y="24">11</text>
+    <text x="90"     y="24">12</text>
+  </g>
+</svg>

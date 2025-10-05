@@ -20,6 +20,7 @@
 #include "webcam.hh"
 #include "screen_songs.hh"
 #include "notegraphscalerfactory.hh"
+#include "guitar/fretboard.hh"
 #include "graphic/video_driver.hh"
 
 #include <fmt/format.h>
@@ -84,6 +85,9 @@ void ScreenSing::enter() {
     }
     getGame().showLogo(false);
     getGame().loading(_("Loading complete"), 1.0f);
+
+    std::cout << "add fretboard" << std::endl;
+    m_instruments.push_back(std::make_unique<FretBoard>(getGame(), m_audio, *m_song, nullptr));
 }
 
 void ScreenSing::prepareVoicesMenu(unsigned moveSelectionTo) {
@@ -216,6 +220,7 @@ void ScreenSing::instrumentLayout(double time) {
     // Remove dead instruments and do the counting
     for (Instruments::iterator it = m_instruments.begin(); it != m_instruments.end(); ) {
         if ((*it)->dead()) {
+            std::cout << "remove dead instrument" << std::endl;
             it = m_instruments.erase(it);
             continue;
         }

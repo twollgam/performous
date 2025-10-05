@@ -2,12 +2,14 @@ cmake_minimum_required(VERSION 3.15)
 
 file(GLOB SOURCE_FILES
 	"*.cc"
+	"guitar/*.cc"
 	"graphic/*.cc"
 	"songorder/*.cc"
 	"utils/*.cc"
 )
 file(GLOB HEADER_FILES
 	"*.hh"
+	"guitar/*.hh"
 	"graphic/*.hh"
 	"songorder/*.hh"
 	"utils/*.hh"
