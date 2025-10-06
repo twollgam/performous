@@ -2,7 +2,7 @@
      xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gitarrengriffbrett mit halbtransparentem Holz">
 
   <style>
-    .dot { fill: #000000; }
+    .dot { fill: #ffffff; }
   </style>
 
   <g id="dot">
