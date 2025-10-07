@@ -3,6 +3,7 @@
 #include "guitar_chords.hh"
 
 #include "graphic/view_trans.hh"
+#include "graphic/text_renderer.hh"
 
 FretBoard::FretBoard(Game& game, Audio& audio, Song const& song, input::DevicePtr dev, GuitarStringProvider provider)
 :  InstrumentGraph(game, audio, song, dev), m_game(game), m_provider(provider),
@@ -19,6 +20,39 @@ void FretBoard::draw(double time) {
 
 	drawBackground();
 	drawCurrentFingers(time);
+	drawChord(time);
+}
+
+void FretBoard::drawChord(double time) {
+	auto const chords = m_provider->getChords(time, time + 2.0);
+
+	if (chords.empty())
+		return;
+
+	auto const top = m_top + m_layout.top * m_boardHeight;
+	auto const bottom = m_top + m_boardHeight -  m_layout.bottom * m_boardHeight;
+	auto const center = (top + bottom) * 0.5f;
+	auto const right = m_right;
+	auto style = TextStyle();
+	style.fontalign = "center";
+	style.fontweight = "bold";
+	style.fontstyle = "normal";
+	style.stroke_col = Color(0.f, 0.f, 0.f);
+	style.fill_col = Color(0.4f, 0.5f, 0.9f, 0.9f);
+	//style.stroke_width = 0.5f;
+
+	m_chord = std::make_unique<OpenGLText>(TextRenderer().render(chords[0].chord, style, 1.0));
+
+	m_chord->dimensions().fixedWidth(0.04f).fixedHeight(0.04f).center(center).left(right);
+	m_chord->draw(m_game.getWindow());
+
+	if (chords.size() < 2)
+		return;
+
+	m_chordNext = std::make_unique<OpenGLText>(TextRenderer().render(chords[1].chord, style, 1.0));
+
+	m_chordNext->dimensions().fixedWidth(0.02f).fixedHeight(0.02f).center(center).left(right + 0.05f);
+	m_chordNext->draw(m_game.getWindow());
 }
 
 void FretBoard::drawCurrentFingers(double time) {
@@ -60,8 +94,8 @@ void FretBoard::draw(GuitarChords::GuitarString string, int fret, float radius, 
 	auto const hBoard = m_boardHeight - (m_layout.top + m_layout.bottom) * m_boardHeight;
 	auto const w = 0.0075f * radius;
 	auto const h = 0.0075f * radius;
-	auto const top = -0.275f + m_layout.top * m_boardHeight;
-	auto const right = 0.475f - m_layout.right * m_boardWidth;
+	auto const top = m_top + m_layout.top * m_boardHeight;
+	auto const right = m_right - m_layout.right * m_boardWidth;
 	auto const x = right - ((static_cast<float>(fret) - 0.5f) / static_cast<float>(m_layout.frets)) * wBoard;
 	auto const y = top + (static_cast<float>(static_cast<int>(string)) / 5.0f) * hBoard;
 
@@ -79,8 +113,8 @@ void FretBoard::drawBackground() {
 	glutil::VertexArray va;
 	auto const w2 = m_boardWidth * 0.5f;
 	auto const h2 = m_boardHeight * 0.5f;
-	auto const top = -0.275f;
-	auto const right = 0.475f;
+	auto const top = m_top;
+	auto const right = m_right;
 	auto const cx = right - w2;
 	auto const cy = top + h2;
 	auto const color = glmath::vec4(1.f, 1.f, 1.f, 1.0f);
