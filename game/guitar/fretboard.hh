@@ -90,6 +90,7 @@ private:
     Game& m_game;
     Texture m_background;
     Texture m_dot;
+    Texture m_muted;
     std::unique_ptr<OpenGLText> m_chord;
     std::unique_ptr<OpenGLText> m_chordNext;
     Layout m_layout;

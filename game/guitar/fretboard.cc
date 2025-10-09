@@ -7,7 +7,8 @@
 
 FretBoard::FretBoard(Game& game, Audio& audio, Song const& song, input::DevicePtr dev, GuitarStringProvider provider)
 :  InstrumentGraph(game, audio, song, dev), m_game(game), m_provider(provider),
-	m_background(findFile("fretboard.svg")), m_dot(findFile("fretboard_dot.svg")), m_layout(parseLayout(findFile("fretboard.json"))) {
+	m_background(findFile("fretboard.svg")), m_dot(findFile("fretboard_dot.svg")), m_muted(findFile("muted_string.svg")), 
+	m_layout(parseLayout(findFile("fretboard.json"))) {
 
 	m_menu.close();
 }
@@ -87,7 +88,7 @@ void FretBoard::drawCurrentFingers(double time) {
 }
 
 void FretBoard::draw(GuitarChords::GuitarString string, int fret, float radius, glmath::vec4 color) {
-	if (fret <= 0)
+	if (fret == 0)
 		return;
 
 	auto const wBoard = m_boardWidth - (m_layout.left + m_layout.right) * m_boardWidth;
@@ -96,8 +97,22 @@ void FretBoard::draw(GuitarChords::GuitarString string, int fret, float radius, 
 	auto const h = 0.0075f * radius;
 	auto const top = m_top + m_layout.top * m_boardHeight;
 	auto const right = m_right - m_layout.right * m_boardWidth;
-	auto const x = right - ((static_cast<float>(fret) - 0.5f) / static_cast<float>(m_layout.frets)) * wBoard;
 	auto const y = top + (static_cast<float>(static_cast<int>(string)) / 5.0f) * hBoard;
+
+	if (fret < 0) {
+		auto const x = right + 0.05f * wBoard;
+		UseTexture tex(m_game.getWindow(), m_muted);
+		glutil::VertexArray va;
+		va.normal(0.0f, 1.0f, 0.0f).color(color).texCoord(0.0f, 0.0f).vertex(-w + x, -h + y);
+		va.normal(0.0f, 1.0f, 0.0f).color(color).texCoord(0.0f, 1.0f).vertex(-w + x, h + y);
+		va.normal(0.0f, 1.0f, 0.0f).color(color).texCoord(1.0f, 0.0f).vertex(w + x, -h + y);
+		va.normal(0.0f, 1.0f, 0.0f).color(color).texCoord(1.0f, 1.0f).vertex(w + x, h + y);
+		va.draw();
+
+		return;
+	}
+
+	auto const x = right - ((static_cast<float>(fret) - 0.5f) / static_cast<float>(m_layout.frets)) * wBoard;
 
 	UseTexture tex(m_game.getWindow(), m_dot);
 	glutil::VertexArray va;
