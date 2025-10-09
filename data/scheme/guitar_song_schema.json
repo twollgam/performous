@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/guitar-song.schema.json",
+  "title": "Guitar Song File",
+  "description": "Schema for a structured guitar song file combining chords, timing, structure, and optional performance data.",
+  "type": "object",
+  "required": [ "meta", "sections", "structure" ],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "default": 1,
+      "description": "Version number of this schema to ensure backward compatibility."
+    },
+    "meta": {
+      "type": "object",
+      "required": [ "title", "artist" ],
+      "properties": {
+        "title": { "type": "string" },
+        "artist": { "type": "string" },
+        "album": { "type": "string" },
+        "year": { "type": "integer" },
+        "tempo_bpm": { "type": "number" },
+        "time_signature": {
+          "type": "string",
+          "pattern": "^[0-9]+/[0-9]+$"
+        },
+        "key": { "type": "string" },
+        "capo": { "type": "integer" },
+        "time_gap": {
+          "type": "number",
+          "description": "Offset before first note/chord (in seconds or beats)."
+        },
+        "time_base": {
+          "type": "string",
+          "enum": [ "seconds", "beats" ],
+          "default": "seconds"
+        },
+        "comment": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+
+    "sections": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z0-9_\\-]+$": {
+          "type": "object",
+          "properties": {
+            "chords": {
+              "type": "array",
+              "description": "List of chord events for this section.",
+              "items": {
+                "type": "object",
+                "required": [ "time", "chord" ],
+                "properties": {
+                  "time": { "type": "number" },
+                  "chord": { "type": "string" },
+                  "duration": { "type": "number" },
+                  "fret_position": { "type": "integer" }
+                },
+                "additionalProperties": false
+              }
+            },
+            "lyrics": {
+              "type": "array",
+              "description": "Optional lyric lines with timing relative to this section.",
+              "items": {
+                "type": "object",
+                "required": [ "time", "text" ],
+                "properties": {
+                  "time": { "type": "number" },
+                  "text": { "type": "string" }
+                }
+              }
+            },
+            "duration": { "type": "number" },
+            "repeat": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "strumming_pattern": {
+              "type": "string",
+              "description": "Simplified strumming notation, e.g. 'D-DU-UDU'."
+            },
+            "picking_pattern_ref": {
+              "type": "string",
+              "description": "Reference to a picking pattern defined in 'picking_patterns'."
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+
+    "structure": {
+      "type": "array",
+      "description": "Defines global playback order of sections.",
+      "items": {
+        "type": "object",
+        "required": [ "section", "start_time" ],
+        "properties": {
+          "section": { "type": "string" },
+          "start_time": { "type": "number" },
+          "label": { "type": "string" },
+          "repeat": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "picking_patterns": {
+      "type": "object",
+      "description": "Named fingerpicking or plucking patterns.",
+      "patternProperties": {
+        "^[A-Za-z0-9_\\-]+$": {
+          "type": "object",
+          "required": [ "pattern" ],
+          "properties": {
+            "description": { "type": "string" },
+            "pattern": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [ "string", "time_offset" ],
+                "properties": {
+                  "string": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 6
+                  },
+                  "time_offset": { "type": "number" },
+                  "velocity": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 127
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+
+    "chord_library": {
+      "type": "object",
+      "description": "Library of chord fingerings used in this song.",
+      "patternProperties": {
+        "^[A-Ga-g][#b]?(maj|min|m|dim|sus|add)?[0-9]*$": {
+          "type": "object",
+          "required": [ "frets" ],
+          "properties": {
+            "frets": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": -1,
+                "maximum": 20
+              },
+              "minItems": 6,
+              "maxItems": 6
+            },
+            "fingers": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "minItems": 6,
+              "maxItems": 6
+            },
+            "barre": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 6
+            },
+            "comment": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      }
+    },
+
+    "lyrics_sync": {
+      "type": "array",
+      "description": "Optional globally timed lyrics.",
+      "items": {
+        "type": "object",
+        "required": [ "time", "text" ],
+        "properties": {
+          "time": { "type": "number" },
+          "text": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "midi_events": {
+      "type": "array",
+      "description": "Optional list of MIDI events for synchronization or playback.",
+      "items": {
+        "type": "object",
+        "required": [ "time", "note" ],
+        "properties": {
+          "time": { "type": "number" },
+          "note": { "type": "integer" },
+          "velocity": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 127
+          },
+          "duration": { "type": "number" }
+        },
+        "additionalProperties": false
+      }
+    },
+
+    "effects": {
+      "type": "object",
+      "description": "Optional effects settings per section.",
+      "patternProperties": {
+        "^[A-Za-z0-9_\\-]+$": {
+          "type": "object",
+          "properties": {
+            "reverb": {
+              "type": "string",
+              "enum": [ "none", "light", "medium", "strong" ]
+            },
+            "distortion": {
+              "type": "string",
+              "enum": [ "none", "light", "medium", "heavy" ]
+            },
+            "delay_ms": { "type": "number" }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
