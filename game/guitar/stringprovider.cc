@@ -7,11 +7,14 @@ void StringProvider::addChord(std::string const& chord, double const time) {
 
 ChordTime StringProvider::getChord(double const time) {
 	std::lock_guard<std::mutex> lock(mutex_);
-	if (chords_.empty()) return { "", 0.0 };
+	if (chords_.empty() || time < chords_.front().time)
+		return { "", 0.0 };
 	auto last = chords_.front();
-	for (auto const& c : chords_) {
-		if (c.time <= time) last = c;
-		else break;
+	for (auto const& chord : chords_) {
+		if (chord.time <= time) 
+			last = chord;
+		else 
+			break;
 	}
 	return last;
 }
@@ -19,8 +22,9 @@ ChordTime StringProvider::getChord(double const time) {
 std::vector<ChordTime> StringProvider::getChords(double const startTime, double const endTime) {
 	std::lock_guard<std::mutex> lock(mutex_);
 	std::vector<ChordTime> result;
-	for (auto const& c : chords_) {
-		if (c.time >= startTime && c.time <= endTime) result.push_back(c);
+	for (auto const& chord : chords_) {
+		if (chord.time >= startTime && chord.time <= endTime)
+			result.push_back(chord);
 	}
 	return result;
 }

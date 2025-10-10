@@ -6,6 +6,7 @@
 #include "log.hh"
 #include "notes.hh"
 #include "util.hh"
+#include "guitar/istringprovider.hh"
 
 #include <cstdint>
 #include <memory>
@@ -49,9 +50,11 @@ public:
 	VocalTrack dummyVocal; ///< notes for the sing part
 	InstrumentTracks instrumentTracks; ///< guitar etc. notes for this song
 	DanceTracks danceTracks; ///< dance tracks
+	GuitarStringProvider guitarTrack;
 	fs::path path; ///< path of songfile
 	fs::path filename; ///< name of songfile
 	fs::path midifilename; ///< name of midi file in FoF format
+	fs::path chordfilename;
 	struct BPM {
 		BPM (double _begin, double _ts, float bpm) :
 		begin (_begin), step (0.25 * 60.0 / bpm), ts (_ts) {}

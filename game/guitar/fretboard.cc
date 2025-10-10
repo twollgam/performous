@@ -6,7 +6,7 @@
 #include "graphic/text_renderer.hh"
 
 FretBoard::FretBoard(Game& game, Audio& audio, Song const& song, input::DevicePtr dev, GuitarStringProvider provider)
-:  InstrumentGraph(game, audio, song, dev), m_game(game), m_provider(provider),
+:  InstrumentGraph(game, audio, song, dev), m_game(game),
 	m_background(findFile("fretboard.svg")), m_dot(findFile("fretboard_dot.svg")), m_muted(findFile("muted_string.svg")), 
 	m_layout(parseLayout(findFile("fretboard.json"))) {
 
@@ -14,6 +14,9 @@ FretBoard::FretBoard(Game& game, Audio& audio, Song const& song, input::DevicePt
 }
 
 void FretBoard::draw(double time) {
+	if (!m_song.guitarTrack)
+		return;
+
 	glutil::GLErrorChecker ec("FretBoard::draw");
 
 	//auto& window = m_game.getWindow();
@@ -25,7 +28,7 @@ void FretBoard::draw(double time) {
 }
 
 void FretBoard::drawChord(double time) {
-	auto const chords = m_provider->getChords(time, time + 2.0);
+	auto const chords = m_song.guitarTrack->getChords(time, time + 2.0);
 
 	if (chords.empty())
 		return;
@@ -57,7 +60,7 @@ void FretBoard::drawChord(double time) {
 }
 
 void FretBoard::drawCurrentFingers(double time) {
-	auto const chord = m_provider->getChord(time);
+	auto const chord = m_song.guitarTrack->getChord(time);
 	auto const defaultColor = glmath::vec4{ 0.f, 0.f, 0.f, 1.f };
 
 	if (!chord.chord.empty()) {
@@ -71,11 +74,11 @@ void FretBoard::drawCurrentFingers(double time) {
 		draw(GuitarChords::GuitarString::E_high, fingering.e_high, 1.f, defaultColor);
 	}
 
-	auto const nextChord = m_provider->getChord(time + 2.);
+	auto const nextChord = m_song.guitarTrack->getChord(time + 2.);
 
 	if (!nextChord.chord.empty()) {
 		auto const fingering = GuitarChords().getFingering(nextChord.chord);
-		auto const opacity = 1.0 - (nextChord.time - time) * 0.5;
+		auto const opacity = std::min(1.0f - float(nextChord.time - time) * 0.5f, 1.0f);
 		auto const color = glmath::vec4{0.3f, 0.f, 0.5f, 0.f} * float(1.0 - opacity) + defaultColor * float(opacity);
 		auto const radius = opacity;
 		draw(GuitarChords::GuitarString::E_low, fingering.e_low, radius, color);

@@ -20,6 +20,7 @@ extern "C" {
 Song::Song(nlohmann::json const& song) : dummyVocal(TrackName::VOCAL_LEAD), randomIdx(rand()) {
 	path = getJsonEntry<std::string>(song, "txtFileFolder").value_or("");
 	filename = getJsonEntry<std::string>(song, "txtFile").value_or("");
+	chordfilename = getJsonEntry<std::string>(song, "chordFile").value_or("");
 	artist = getJsonEntry<std::string>(song, "artist").value_or("");
 	title = getJsonEntry<std::string>(song, "title").value_or("");
 	language = getJsonEntry<std::string>(song, "language").value_or("");

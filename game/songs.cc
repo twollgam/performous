@@ -121,7 +121,7 @@ void Songs::reload_internal() {
 	if (m_loading) dumpSongs_internal(); // Dump the songlist to file (if requested)
 	m_loading = false;
 	SpdLogger::notice(LogSystem::SONGS, "Done. Loaded {} songs.", loadedSongs());
-	CacheSonglist();
+	cacheSonglist();
 	SpdLogger::notice(LogSystem::SONGS, "Done updating cache.");
 	doneLoading = true;
 }
@@ -137,7 +137,7 @@ Songs::Cache Songs::loadCache() {
 	return cache;
 }
 
-void Songs::CacheSonglist() {
+void Songs::cacheSonglist() {
 	auto jsonRoot = nlohmann::json::array();
 	std::shared_lock<std::shared_mutex> l(m_mutex);
 	for (auto const& song : m_songs) {
@@ -147,6 +147,9 @@ void Songs::CacheSonglist() {
 		}
 		if(!song->filename.string().empty()) {
 			songObject["txtFile"] = song->filename.string();
+		}
+		if(!song->chordfilename.string().empty()) {
+			songObject["chordFile"] = song->chordfilename.string();
 		}
 		if(!song->title.empty()) {
 			songObject["title"] = song->title;
@@ -282,7 +285,7 @@ void Songs::CacheSonglist() {
 
 	fs::path cacheDir = PathCache::getCacheDir() / SONGS_CACHE_JSON_FILE;
 	writeJSON(jsonRoot, cacheDir);
-	}
+}
 
 void Songs::reload_internal(fs::path const& parent, Cache cache) {
 	try {

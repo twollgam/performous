@@ -1,6 +1,7 @@
 #include "songparser.hh"
 #include "unicode.hh"
 #include "util.hh"
+#include "guitar/stringprovider.hh"
 
 #include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
@@ -8,6 +9,7 @@
 #include <cmath>
 #include <fstream>
 #include <regex>
+#include <guitar/guitarjsonloader.hh>
 
 
 namespace SongParserUtil {
@@ -102,6 +104,11 @@ SongParser::SongParser(Song& s) : m_song(s) {
 			else if (s.type == Song::Type::INI) midParse();  // INI doesn't contain notes, parse those from MIDI
 			else if (s.type == Song::Type::XML) xmlParse();
 			else if (s.type == Song::Type::SM) smParse();
+
+			if (!m_song.chordfilename.empty() && !m_song.guitarTrack) {
+				m_song.guitarTrack = GuitarJsonLoader().load(m_song.chordfilename.string());
+			}
+
 			finalize();  // Do some adjusting to the notes
 			s.loadStatus = Song::LoadStatus::FULL;
 			return;
@@ -117,6 +124,9 @@ SongParser::SongParser(Song& s) : m_song(s) {
 		guessFiles();
 		if (!m_song.midifilename.empty()) { 
 			midParseHeader(); 
+		}
+		if (!m_song.chordfilename.empty()) { 
+			m_song.guitarTrack = GuitarJsonLoader().load(m_song.chordfilename.string());
 		}
 		if (s.loadStatus != Song::LoadStatus::PARSERERROR) {
 			s.loadStatus = Song::LoadStatus::HEADER;
@@ -140,6 +150,8 @@ void SongParser::guessFiles() {
 		{ &m_song.video, R"(\.(avi|mpg|mpeg|flv|mov|mp4|mkv|m4v|webm)$)" },
 		{ &m_song.midifilename, R"(^notes\.mid$)" },
 		{ &m_song.midifilename, R"(\.mid$)" },
+		{ &m_song.chordfilename, R"(guitar\.json$)" },
+		{ &m_song.chordfilename, R"(chords\.json$)" },
 		{ &m_song.music[TrackName::PREVIEW], R"(^preview\.(mp3|m4a|ogg|opus|aac)$)" },
 		{ &m_song.music[TrackName::GUITAR], R"(^guitar\.(mp3|m4a|ogg|opus|aac)$)" },
 		{ &m_song.music[TrackName::BASS], R"(^(bass|rhythm)\.(mp3|m4a|ogg|opus|aac)$)" },

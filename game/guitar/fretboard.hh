@@ -94,7 +94,6 @@ private:
     std::unique_ptr<OpenGLText> m_chord;
     std::unique_ptr<OpenGLText> m_chordNext;
     Layout m_layout;
-    GuitarStringProvider m_provider;
     float const m_boardWidth = 0.5f;
     float const m_boardHeight = 0.125f;
     float const m_top = -0.25f;

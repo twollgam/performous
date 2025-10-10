@@ -84,7 +84,7 @@ class Songs {
 
   private:
 	Cache loadCache();
-	void CacheSonglist();
+	void cacheSonglist();
 
 	void dumpSongs_internal() const;
 	void reload_internal();

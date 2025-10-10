@@ -1,5 +1,6 @@
 #include "guitarjsonloader.hh"
-#include "json.h"
+#include "json.hh"
+
 #include <fstream>
 #include <stdexcept>
 
@@ -28,9 +29,11 @@ std::shared_ptr<StringProvider> GuitarJsonLoader::load(std::string const& path) 
 	for (auto const& entry : structure) {
 		auto const sectionName = entry["section"].get<std::string>();
 		auto const startTime = entry["start_time"].get<double>();
-		if (!sections.contains(sectionName)) continue;
+		if (!sections.contains(sectionName))
+			continue;
 		auto const& section = sections[sectionName];
-		if (!section.contains("chords")) continue;
+		if (!section.contains("chords"))
+			continue;
 		auto const& chords = section["chords"];
 
 		for (auto const& c : chords) {
