@@ -1,6 +1,7 @@
 #pragma once
 
 #include "instrumentgraph.hh"
+#include "fretboard_renderer.hh"
 #include "guitar_chords.hh"
 #include "istringprovider.hh"
 
@@ -89,14 +90,15 @@ private:
 
     Game& m_game;
     Texture m_background;
-    Texture m_dot;
+    Texture m_line;
     Texture m_muted;
     std::unique_ptr<OpenGLText> m_chord;
     std::unique_ptr<OpenGLText> m_chordNext;
     Layout m_layout;
+    FretboardRenderer m_renderer;
+    double m_lastTime = -1.;
     float const m_boardWidth = 0.5f;
     float const m_boardHeight = 0.125f;
     float const m_top = -0.25f;
     float const m_right = 0.4f;
-
 };

@@ -7,9 +7,10 @@
 struct ChordTime {
 	std::string chord;
 	double time;
+	double duration;
 
-	ChordTime(const std::string& chord, double time)
-		: chord(chord), time(time) {
+	ChordTime(const std::string& chord, double time, double duration = 4.)
+		: chord(chord), time(time), duration(duration) {
 	}
 };
 

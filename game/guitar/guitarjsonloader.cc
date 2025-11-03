@@ -39,7 +39,8 @@ std::shared_ptr<StringProvider> GuitarJsonLoader::load(std::string const& path) 
 		for (auto const& c : chords) {
 			auto const chord = c["chord"].get<std::string>();
 			auto const chordTime = c["time"].get<double>();
-			provider->addChord(chord, chordTime + startTime + globalGap);
+			auto const duration = c.value("duration", 2.);
+			provider->addChord(chord, chordTime + startTime + globalGap, duration);
 		}
 
 		if (section.contains("repeat")) {
@@ -49,7 +50,7 @@ std::shared_ptr<StringProvider> GuitarJsonLoader::load(std::string const& path) 
 				for (auto const& c : chords) {
 					auto const chord = c["chord"].get<std::string>();
 					auto const chordTime = c["time"].get<double>();
-					provider->addChord(chord, chordTime + startTime + (i * duration) + globalGap);
+					provider->addChord(chord, chordTime + startTime + (i * duration) + globalGap, duration);
 				}
 			}
 		}

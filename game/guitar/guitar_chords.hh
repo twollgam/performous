@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fingering.hh"
+
 #include <string>
 #include <map>
 
@@ -12,17 +14,6 @@ public:
         G,
         B,
         E_high
-    };
-
-    // Struktur zur Speicherung der Bund-Informationen für alle 6 Saiten.
-    // 0 = Leersaite. -1 oder 99 (hier nicht verwendet) könnte Dämpfen/Mutieren bedeuten.
-    struct Fingering {
-        int e_low;
-        int a;
-        int d;
-        int g;
-        int b;
-        int e_high;
     };
 
     auto getFingering(const std::string& chord) const -> Fingering;
