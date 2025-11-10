@@ -30,11 +30,13 @@ void FretBoard::draw(double time) {
     //drawCurrentFingers(time);
     //drawChord(time);
 
+    auto const difficulty = 10;
+
     if (m_lastTime > -1.) {
         auto const chords = m_song.guitarTrack->getChords(m_lastTime + 10.0, time + 10.0);
 
         for (auto const& chord : chords)
-            m_renderer.pushNote(Guitar::Note{ chord.chord, GuitarChords().getFingering(chord.chord), Guitar::NoteType::Chord, float(chord.time), float(chord.duration) });
+            m_renderer.pushNote(Guitar::Note{ chord.chord, GuitarChords().getFingering(chord.chord), Guitar::NoteType::Chord, chord.strummings, float(chord.time), float(chord.duration) });
     }
 #
     m_renderer.update(time);

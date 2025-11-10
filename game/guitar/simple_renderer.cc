@@ -2,12 +2,21 @@
 
 #include "graphic/view_trans.hh"
 #include "graphic/text_renderer.hh"
+#include "graphic/texture_grid_loader.hh"
 
 #include "game.hh"
 
 
 SimpleGLRenderer::SimpleGLRenderer(Game& game)
-    : m_game(game), m_line(findFile("white_square.svg")), m_marker(findFile("fretboard_marker.svg")) {
+    : m_game(game),
+    m_line(findFile("white_square.svg")),
+    m_marker(findFile("fretboard_marker.svg")),
+    m_stroke(findFile("stroke_up.svg")) {
+    try {
+        m_strokeGrid = TextureGridLoader().loadFromJson(findFile("stroke_up.json"));
+    }
+    catch (const std::exception&) {
+    }
 }
 
 void SimpleGLRenderer::init() {
@@ -135,8 +144,8 @@ void SimpleGLRenderer::drawNoteBlock(double time, const Guitar::Note& note, cons
     auto checkString = [&](int idx, int fret) {
         if (fret >= 0)
             activeStrings.emplace_back(idx, fret);
-    };
-    for(auto string = 0; string < 6; ++string)
+        };
+    for (auto string = 0; string < 6; ++string)
         checkString(string, note.fingering[string]);
 
     if (activeStrings.empty())
@@ -152,7 +161,7 @@ void SimpleGLRenderer::drawNoteBlock(double time, const Guitar::Note& note, cons
     const auto blockHeight = m_boardHeight * 1.1f;
     const auto borderYOffset = -m_boardHeight * 0.1f * 0.5f;
     const auto borderThickness = 0.002f;
-    const auto borderColor = glmath::vec4{ 0.1f, 0.2f, 0.6f, 0.7f * opacity};
+    const auto borderColor = glmath::vec4{ 0.1f, 0.2f, 0.6f, 0.7f * opacity };
 
     auto drawQuad = [&](float cx, float cy, float w, float h, const glmath::vec4& color) {
         glutil::VertexArray va;
@@ -161,13 +170,13 @@ void SimpleGLRenderer::drawNoteBlock(double time, const Guitar::Note& note, cons
         va.normal(0.0f, 1.0f, 0.0f).color(color).texCoord(1.0f, 0.0f).vertex(cx + w, cy);
         va.normal(0.0f, 1.0f, 0.0f).color(color).texCoord(1.0f, 1.0f).vertex(cx + w, cy + h);
         va.draw();
-    };
+        };
     auto drawBox = [&](float x, float y, float w, float h, float thickness, const glmath::vec4& color) {
         drawQuad(x - thickness, y - thickness, w + thickness, thickness, color);
         drawQuad(x - thickness, y, thickness, h, color);
         drawQuad(x - thickness, y + h, w + thickness, thickness, color);
         drawQuad(x + w, y, thickness, h, color);
-    };
+        };
 
     drawBox(x, y + borderYOffset, blockWidth, blockHeight, borderThickness, borderColor);
 
@@ -177,14 +186,22 @@ void SimpleGLRenderer::drawNoteBlock(double time, const Guitar::Note& note, cons
         drawQuad(x, stringY, blockWidth, 0.002f, color);
     }
 
-    for(auto string = 0; string < 6; ++string)
+    for (auto string = 0; string < 6; ++string)
         drawFingering(x, y, string, note.fingering[string], opacity, params);
 
     drawOverlayText(note.chord, x - 0.01f, y, opacity);
+
+    auto const strokeWidth = blockWidth * 0.25f;
+    auto const strokeHight = blockHeight * 1.f;
+    const auto strokeColor = glmath::vec4{ 1.0f, 1.0f, 1.0f, opacity };
+    m_strokeGrid.draw(m_stroke, m_game, x - strokeWidth, y, strokeWidth, strokeHight, strokeWidth, strokeWidth, strokeColor);
+}
+
+void SimpleGLRenderer::drawNoteBlockStroke(double time, const Guitar::Note& note, float opacity, const Guitar::RenderParams& params) {
 }
 
 void SimpleGLRenderer::drawNote(double time, const Guitar::Note& note, const Guitar::RenderParams& params) {
-    for(auto string = 0; string < 6; ++string)
+    for (auto string = 0; string < 6; ++string)
         drawFingering(m_boardXOffset, m_boardYOffset, string, note.fingering[string], 1.f, params);
 }
 

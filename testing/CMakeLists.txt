@@ -12,6 +12,7 @@ set(SOURCE_FILES
 	"ringbuffertest.cc"
 	"utiltest.cc"
 	"imagetypetest.cc"
+	"stroke_type_test.cc"
 
 	"main.cc"
 	"printer.cc"
@@ -33,6 +34,7 @@ set(GAME_SOURCES
 	"../game/platform.cc"
 	"../game/tone.cc"
 	"../game/util.cc"
+	"../game/guitar/stroke_type.cc"
 )
 
 set(GTEST_REQUIRED "")

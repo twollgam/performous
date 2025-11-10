@@ -1,11 +1,14 @@
 #pragma once
 
+#include "strumming_pattern.hh"
+
 #include <string>
 #include <memory>
 #include <vector>
 
 struct ChordTime {
 	std::string chord;
+	StrummingPatterns strummings;
 	double time;
 	double duration;
 

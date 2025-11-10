@@ -1,0 +1,9 @@
+{
+  "textureWidth": 200,
+  "textureHeight": 200,
+  "columns": [200],
+  "rows": [125, 25, 50],
+  "cells": [
+    { "col": 0, "row": 1, "modeX": "Stretch", "modeY": "Stretch" }
+  ]
+}

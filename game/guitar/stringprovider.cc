@@ -1,8 +1,8 @@
 #include "stringprovider.hh"
 
-void StringProvider::addChord(std::string const& chord, double const time, double duration) {
+ChordTime& StringProvider::addChord(std::string const& chord, double const time, double duration) {
 	std::lock_guard<std::mutex> lock(mutex_);
-	chords_.emplace_back(chord, time, duration);
+	return chords_.emplace_back(chord, time, duration);
 }
 
 ChordTime StringProvider::getChord(double const time) {

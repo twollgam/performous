@@ -7,7 +7,7 @@ class StringProvider : public IGuitarStringProvider {
 public:
 	StringProvider() = default;
 
-	void addChord(std::string const& chord, double const time, double duration);
+	ChordTime& addChord(std::string const& chord, double const time, double duration);
 	ChordTime getChord(double const time) override;
 	std::vector<ChordTime> getChords(double const startTime, double const endTime) override;
 
