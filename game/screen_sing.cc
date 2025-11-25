@@ -659,7 +659,9 @@ void ScreenSing::draw() {
 
     instrumentLayout(time);
 
-    auto const ignoreInstruments = std::all_of(m_instruments.begin(), m_instruments.end(), [](auto const& instrument) {return instrument->ignoreLayout(); });
+    auto const ignoreInstruments = std::all_of(m_instruments.begin(), m_instruments.end(), [](auto const& instrument) {
+        return instrument->ignoreLayout();
+    });
     auto const fullSinger = (m_instruments.empty() || ignoreInstruments) && m_layout_singer.size() <= 1;
     for (unsigned i = 0; i < m_layout_singer.size(); ++i) {
         auto position = LayoutSinger::PositionMode::FULL;

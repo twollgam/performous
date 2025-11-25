@@ -124,7 +124,7 @@ public:
 	bool hasDance() const { return !danceTracks.empty(); }
 	bool hasDrums() const { return instrumentTracks.find(TrackName::DRUMS) != instrumentTracks.end(); }
 	bool hasKeyboard() const { return instrumentTracks.find(TrackName::KEYBOARD) != instrumentTracks.end(); }
-	bool hasGuitars() const { return instrumentTracks.size() - hasDrums() - hasKeyboard(); }
+	bool hasGuitars() const;
 	bool hasVocals() const { return !vocalTracks.empty(); }
 	bool hasDuet() const { return vocalTracks.size() > 1; }
 	bool hasControllers() const;

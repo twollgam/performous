@@ -204,7 +204,7 @@ void FretBoard::changeDifficulty(int) {
 }
 
 bool FretBoard::ignoreLayout() const {
-    return true;
+    return false;
 }
 
 bool FretBoard::modifyAudioTrack(AudioModification& volume, AudioModification& pitchbend) {
